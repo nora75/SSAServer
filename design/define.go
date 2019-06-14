@@ -4,6 +4,41 @@ import (
 	. "goa.design/goa/v3/dsl"
 )
 
+var BasicAuth = BasicAuthSecurity("basic_auth")
+
+var MyResultType = ResultType("application/vnd.goa.ssa", func(){
+	ContentType("application/json")
+
+	Attributes(func() {
+		Attribute("user_name", String, "User Name")
+		Attribute("password", String, "User Password")
+		Attribute("mail", String, "User mail-address")
+		Attribute("group_id", String, "Gourp ID")
+		Attribute("data_name", String, "Data name")
+		Attribute("Data", Any, "Data name")
+	})
+
+	View("default", func() {
+		// "id" and "name" must be result type attributes
+		Attribute("mail")
+		Attribute("user_name")
+	})
+
+	View("extended", func() {
+		Attribute("mail")
+		Attribute("user_name")
+		Attribute("group_id")
+	})
+
+	View("group_id", func() {
+		Attribute("group_id")
+	})
+	
+	View("data", func() {
+		Attribute("Data")
+	})
+})
+
 var _ = API("SSA", func() {
 	Title("SSAServer")
 	Description("Service for record talking.")
@@ -11,9 +46,6 @@ var _ = API("SSA", func() {
 	Server("SSAServer", func() {
 		Host("localhost", func() {
 			URI("http://localhost:8000/")
-		})
-		HTTP(func(){
-			Path("SSAServer")
 		})
 		Services("SSAServer")
 	})
@@ -39,11 +71,11 @@ var _ = Service("SSAServer", func() {
 			Required("user_name", "password", "mail")
 		})
 
-		Result(Default, func(){
+		Result(MyResultType, func(){
 			View("default")
 		})
 
-		Result(Extended, func(){
+		Result(MyResultType, func(){
 			View("extended")
 			Required("group_id")
 		})
@@ -51,14 +83,14 @@ var _ = Service("SSAServer", func() {
 		HTTP(func() {
 			POST("/Register")
 			Response(StatusOK)
-			Response("Bad Group ID", NotFound)
-			Response("The user already exists", BadRequest)
+			Response("Invalid Group ID", StatusNotFound)
+			Response("The user already exists", StatusBadRequest)
 		})
 
 	})
 
 	Method("Login", func() {
-		Security(Basic)
+		Security(BasicAuth)
 		Payload(func() {
 			Username("mail", String)
 			Password("password", String)
@@ -66,11 +98,11 @@ var _ = Service("SSAServer", func() {
 			Required("mail", "password")
 		})
 
-		Result(Default, func(){
+		Result(MyResultType, func(){
 			View("default")
 		})
 
-		Result(Extended, func(){
+		Result(MyResultType, func(){
 			View("extended")
 			Required("group_id")
 		})
@@ -78,9 +110,9 @@ var _ = Service("SSAServer", func() {
 		HTTP(func() {
 			GET("/Login")
 			Response(StatusOK)
-			Response("Bad Group ID", NotFound)
-			Response("Bad Password", BadRequest)
-			Response("Bad User Name", BadRequest)
+			Response("Invalid Group ID", StatusNotFound)
+			Response("Invalid Password", StatusBadRequest)
+			Response("Invalid User Name", StatusBadRequest)
 		})
 
 	})
@@ -95,7 +127,7 @@ var _ = Service("SSAServer", func() {
 
 		HTTP(func(){
 			GET("/Join")
-			Response("Bad Group ID", BadRequest)
+			Response("Invalid Group ID", StatusBadRequest)
 			Response(StatusOK)
 		})
 	})
@@ -105,7 +137,7 @@ var _ = Service("SSAServer", func() {
 			Attribute("id", Int, "User ID")
 			Attribute("group_id", String, "Gourp ID")
 			Attribute("data_name", String, "Data name")
-			Attribute("Data", String, "Data name")
+			Attribute("Data", Any, "Data name")
 			Required("id", "group_id", "data_name", "Data")
 		})
 
@@ -113,10 +145,10 @@ var _ = Service("SSAServer", func() {
 
 		HTTP(func() {
 			GET("/Save/{id}")
-			Response("Bad Password", BadRequest)
-			Response("Bad Request", BadRequest)
-			Response("Bad User Name", BadRequest)
-			Response("Bad Group ID", NotFound)
+			Response("Invalid Password", StatusBadRequest)
+			Response("Invalid Request", StatusBadRequest)
+			Response("Invalid User Name", StatusBadRequest)
+			Response("Invalid Group ID", StatusNotFound)
 			Response(StatusOK)
 		})
 
@@ -125,19 +157,21 @@ var _ = Service("SSAServer", func() {
 	Method("PickUp", func() {
 		Payload(func() {
 			Attribute("id", Int, "User ID")
-			Attribute("group_id", Strign, "Gourp ID")
+			Attribute("group_id", String, "Gourp ID")
 			Attribute("data_name", String, "Data name")
 			Required("id", "group_id", "data_name")
 		})
 
-		Result(String)
+		Result(MyResultType, func(){
+			View("data")
+		})
 
 		HTTP(func() {
-			GET("/PickUp/{1}")
+			GET("/PickUp")
 			Response(StatusOK)
-			Response("Bad Group ID", NotFound)
-			Response("Bad Request", BadRequest)
-			Response("Bad data_name", BadRequest)
+			Response("Invalid Group ID", StatusNotFound)
+			Response("Invalid Request", StatusBadRequest)
+			Response("Invalid data_name", StatusBadRequest)
 		})
 
 	})
@@ -149,16 +183,16 @@ var _ = Service("SSAServer", func() {
 			Required("id", "mail")
 		})
 
-		Result(GroupID, func(){
+		Result(MyResultType, func(){
 			View("group_id")
 		})
 
 		HTTP(func() {
 			GET("/GroupID/{id}")
 			Response(StatusOK)
-			Response("Bad ID", BadRequest)
-			Response("Bad mail-address", BadRequest)
-			Response("Bad Request", Forbidden)
+			Response("Invalid ID", StatusBadRequest)
+			Response("Invalid mail-address", StatusBadRequest)
+			Response("Invalid Request", StatusForbidden)
 		})
 
 	})
