@@ -32,15 +32,3 @@ var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 		Attribute("group_id")
 	})
 })
-
-Result(default, func(){
-	View("default")
-})
-
-Result(extended, func(){
-	View("extended")
-})
-
-Result(group_id, func(){
-	View("group_id")
-})

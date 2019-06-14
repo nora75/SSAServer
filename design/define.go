@@ -88,7 +88,7 @@ var _ = Service("SSAServer", func() {
 	Method("Join", func(){
 		Payload(func(){
 			Attribute("id", Int, "User ID")
-			Field(1,"group_id", String, "Group ID")
+			Attribute("group_id", String, "Group ID")
 		})
 
 		Result(Boolean)
