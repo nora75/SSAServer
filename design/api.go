@@ -4,13 +4,6 @@ import (
 	. "goa.design/goa/v3/dsl"
 )
 
-// BasicAuth defines a security scheme using basic authentication. The scheme
-// protects the "signin" action used to create JWTs.
-var BasicAuth = BasicAuthSecurity("basic", func() {
-	Description("Basic authentication used to authenticate security principal during signin")
-	Scope("api:read", "Read-only access")
-})
-
 // MyResultType is declation of use in result views
 var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 	ContentType("application/json")
@@ -64,15 +57,16 @@ var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 		})
 		Attribute("data_name", MapOf(String, String), "Data name", func(){
 			Example("The example of record data", func(){
-				Description("The record data that's name is 'Record_12_2019-06-02_12-07-35'")
+				Description("Record data of User 12,Time 2019-06-02_12-07-35")
 				Value(map[string]string{"data_name": "Record_12_2019-06-02_12-07-35"})
 			})
 			Example("The example of Diary data", func(){
-				Description("The diary data that's name is 'diary_312_2019-03-02_12-07-35'")
-				Value(map[string]string{"data_name": "Record_312_2019-03-02_12-07-35"})
+				Description("Diary data of User 312,Time 2019-03-02_12-07-35")
+				Value(map[string]string{"data_name": "Diary_312_2019-03-02_12-07-35"})
 			})
 		})
 		Attribute("Data", Any, "Data")
+		Attribute("Image", Any, "Image data")
 		Attribute("data_type", MapOf(String, Int), "Data's name", func(){
 			Example("The record", func(){
 				Description("The data_type 0(record)")
@@ -83,39 +77,71 @@ var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 				Value(map[string]int{"data_type": 1})
 			})
 		})
+		Attribute("title", MapOf(String, String), "Data title", func(){
+			Example("Title: hoge", func(){
+				Description("The Diary's title of hoge")
+				Value(map[string]string{"title": "hoge"})
+			})
+		})
+		Attribute("image_name", MapOf(String, String), "image's name", func(){
+			Example("Sample image name", func(){
+				Description("The image's title of huge")
+				Value(map[string]string{"image_name": "huge"})
+			})
+		})
+		Attribute("date_time", MapOf(String, String), "date time", func(){
+			Example("date time", func(){
+				Description("uploaded time")
+				Value(map[string]string{"date_time": "2019-06-05-02-02"})
+			})
+		})
+		Attribute("data_list_origin", Any, "data_list_recursive")
 	})
 
 	View("default", func() {
+		Attribute("user_id")
 		Attribute("mail")
 		Attribute("user_name")
 	})
 
 	View("extended", func() {
-		Attribute("mail")
-		Attribute("user_name")
-		Attribute("group_id")
-	})
-
-	View("login", func() {
-		Attribute("user_id")
-		Attribute("mail")
-		Attribute("user_name")
-	})
-
-	View("login_extended", func() {
 		Attribute("user_id")
 		Attribute("mail")
 		Attribute("user_name")
 		Attribute("group_id")
 	})
 
-	View("group_id", func() {
-		Attribute("group_id")
-	})
-	
 	View("data", func() {
 		Attribute("Data")
 		Attribute("data_type")
+		Attribute("data_name")
+	})
+
+	View("data_extended", func() {
+		Attribute("Data")
+		Attribute("data_type")
+		Attribute("data_name")
+		Attribute("title")
+	})
+
+	View("data_extended_with_image", func() {
+		Attribute("Data")
+		Attribute("data_type")
+		Attribute("data_name")
+		Attribute("title")
+		Attribute("Image")
+		Attribute("image_name")
+	})
+
+	View("data_list", func() {
+		Attribute("data_type")
+		Attribute("data_name")
+		Attribute("title")
+		Attribute("date_time")
+		Attribute("user_name")
+        Attribute("data_list_origin", func() {
+            View("data_list")
+        })
 	})
 })
 

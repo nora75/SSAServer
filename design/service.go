@@ -39,10 +39,17 @@ var _ = Service("SSAServer", func() {
 			})
 		})
 
-		Result(Boolean)
+		Result(MyResultType, func(){
+			View("default")
+		})
+
+		Result(MyResultType, func(){
+			View("extended")
+			Required("group_id")
+		})
 
 		HTTP(func() {
-			GET("/Register")
+			POST("/Registration")
 			Response(StatusOK)
 			Response("Invalid Group ID", StatusNotFound)
 			Response("The user already exists", StatusBadRequest)
@@ -52,7 +59,6 @@ var _ = Service("SSAServer", func() {
 	})
 
 	Method("Login", func() {
-		Security(BasicAuth)
 		Payload(func() {
 			Username("mail", String)
 			Password("password", String)
@@ -73,16 +79,16 @@ var _ = Service("SSAServer", func() {
 		})
 
 		Result(MyResultType, func(){
-			View("login")
+			View("default")
 		})
 
 		Result(MyResultType, func(){
-			View("login_extended")
+			View("extended")
 			Required("group_id")
 		})
 
 		HTTP(func() {
-			POST("/{id}")
+			POST("/Login")
 			Response(StatusOK)
 			Response("Invalid Request", StatusBadRequest)
 			Response("Invalid Group ID", StatusNotFound)
@@ -90,33 +96,12 @@ var _ = Service("SSAServer", func() {
 
 	})
 
-	Method("Generate_group_id", func() {
-		Security(BasicAuth)
-		Payload(func() {
-			Username("id", Int, "User ID")
-			Password("password", Int, "User password")
-			Required("id", "password")
-		})
-
-		Result(MyResultType, func(){
-			View("group_id")
-		})
-
-		HTTP(func() {
-			GET("/{id}")
-			Response(StatusOK)
-			Response("Invalid ID", StatusBadRequest)
-			Response("Invalid Request", StatusBadRequest)
-		})
-
-	})
-
 	Method("Join_group", func(){
 		Payload(func(){
-			Attribute("id", Int, "User ID")
-			Attribute("mail", String, "User mail-address")
+			Username("id", Int, "User ID")
+			Password("password", String, "User password")
 			Attribute("group_id", String, "Group ID")
-			Required("id", "mail","group_id")
+			Required("id", "password","group_id")
 			Example("Join group1", func(){
 				Description("Join group1")
 				Value(map[string]string{"id": "123",
@@ -131,10 +116,8 @@ var _ = Service("SSAServer", func() {
 			})
 		})
 
-		Result(Boolean)
-
 		HTTP(func(){
-			POST("/{id}/Join")
+			POST("/{id}")
 			Response("Invalid Group ID", StatusBadRequest)
 			Response("Invalid Request", StatusBadRequest)
 			Response(StatusOK)
@@ -142,7 +125,6 @@ var _ = Service("SSAServer", func() {
 	})
 
 	Method("Delete_user", func(){
-		Security(BasicAuth)
 		Payload(func(){
 			Username("id", Int)
 			Password("password", String)
@@ -152,8 +134,6 @@ var _ = Service("SSAServer", func() {
 				Value(map[string]string{"password": "password"})
 			})
 		})
-
-		Result(Boolean)
 
 		HTTP(func(){
 			DELETE("/{id}")
@@ -168,11 +148,12 @@ var _ = Service("SSAServer", func() {
 			Attribute("id", Int, "User ID")
 			Attribute("data_name", String, "Data name")
 			Attribute("data_type", Int, "Data name")
-			Attribute("Data", Any, "Data name")
-			Required("group_id", "id", "data_name", "Data")
+			Attribute("Data1", Any, "Data1")
+			Attribute("title", String, "Diary title")
+			Attribute("image_name", String, "Image name")
+			Attribute("Data2", Any, "Data2")
+			Required("group_id", "id", "data_name", "Data1")
 		})
-
-		Result(Boolean)
 
 		HTTP(func() {
 			POST("/{group_id}")
@@ -184,16 +165,47 @@ var _ = Service("SSAServer", func() {
 
 	})
 
+	Method("Return_data_list", func() {
+		Payload(func() {
+			Attribute("group_id", String, "Gourp ID")
+			Attribute("id", Int, "User ID")
+			Required("group_id", "id")
+		})
+
+		Result(MyResultType, func(){
+			View("data_list")
+		})
+
+		HTTP(func() {
+			GET("/{group_id}")
+			Response(StatusOK)
+			Response("Invalid Group ID", StatusNotFound)
+			Response("Invalid Request", StatusBadRequest)
+		})
+
+	})
+
 	Method("Pick_up", func() {
 		Payload(func() {
 			Attribute("group_id", String, "Gourp ID")
 			Attribute("id", Int, "User ID")
 			Attribute("data_name", String, "Data name")
+			Attribute("data_type", String, "Data type")
 			Required("group_id", "id", "data_name")
 		})
 
 		Result(MyResultType, func(){
 			View("data")
+		})
+
+		Result(MyResultType, func(){
+			View("data_extended")
+			Required("title")
+		})
+
+		Result(MyResultType, func(){
+			View("data_extended_with_image")
+			Required("title", "image_name")
 		})
 
 		HTTP(func() {
