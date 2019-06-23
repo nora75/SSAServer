@@ -168,7 +168,6 @@ var CustomErrorType = ResultType("application/vnd.ssa.error", func() {
 })
 
 var _ = API("SSA", func() {
-	Meta("swagger:example", "false")
 	Title("SSAServer")
 	Description("SSAサービスのサーバーサイドプログラム")
 	Version("0.1")
@@ -180,14 +179,3 @@ var _ = API("SSA", func() {
 	})
 })
 
-var _ = API("Swagger", func() {
-	Title("Swagger UI for SSAServer")
-	Description("API仕様書")
-	Version("0.1")
-	Server("Swagger", func() {
-		Host("localhost", func() {
-			URI("http://localhost:8000/swagger-ui")
-		})
-		Services("Swagger")
-	})
-})

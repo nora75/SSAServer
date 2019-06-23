@@ -21,17 +21,17 @@ var _ = Service("SSAServer", func() {
 		Description("SSAへの新規登録")
 		Payload(func() {
 			Attribute("user_name", String, "User Name", func(){
-				Example("単純な例、UTF-8に対応しています","平野竜也")
+				Example("平野竜也")
 			})
 			Attribute("password", String, "User Password", func(){
-				Example("'passW0rd'がパスワードの場合","passW0rd")
+				Example("passW0rd")
 			})
 			Attribute("mail", String, "User mail-address", func(){
 				Format("email")
-				Example("メアド","hoge@hoge.com")
+				Example("hoge@hoge.com")
 			})
 			Attribute("group_id", String, "Group ID", func(){
-				Example("'bzuiphjjgdas'がグループ名の場合", "bzuiphjjgdas")
+				Example("group-bzuiphjjgdas")
 			})
 			Required("user_name", "password", "mail")
 		})
@@ -232,9 +232,5 @@ var _ = Service("SSAServer", func() {
 
 	})
 
-})
-
-var _ = Service("Swagger", func() {
-	Description("SSAアプリケーションのサーバーサイド")
 	Files("/openapi.json", "../../gen/http/openapi.json")
 })
