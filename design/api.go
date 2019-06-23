@@ -5,7 +5,7 @@ import (
 )
 
 // MyResultType is declation of use in result views
-var MyResultType = ResultType("application/vnd.goa.ssa", func(){
+var MyResultType = ResultType("application/vnd.ssa.result", func(){
 	ContentType("application/json")
 
 	Attributes(func() {
@@ -20,14 +20,6 @@ var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 			})
 		})
 		Attribute("user_name", String, "User Name", func(){
-			Example("The user's name Hirano", func(){
-				Description("Simple usecase")
-				Value("Hirano")
-			})
-			Example("The user's name Hirano Tatsuya", func(){
-				Description("Can contain space")
-				Value("Hirano Tatsuya")
-			})
 			Example("The user's name 平野 竜也", func(){
 				Description("Can use utf-8")
 				Value("平野 竜也")
@@ -46,10 +38,11 @@ var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 		Attribute("mail", String, "User mail-address", func(){
 			Example("Example of mail-address", func(){
 				Description("Example of mail-address")
+				Format("email")
 				Value("hoge@hoge.com")
 			})
 		})
-		Attribute("group_id", String, "Gourp ID", func(){
+		Attribute("group_id", String, "Group ID", func(){
 			Example("The group name is 'bzuiphjjgdas'", func(){
 				Description("The user who belong to Group 'bzuiphjjgdas'")
 				Value("bzuiphjjgdas")
@@ -95,68 +88,90 @@ var MyResultType = ResultType("application/vnd.goa.ssa", func(){
 				Value("2019-06-05-02-02")
 			})
 		})
-		Attribute("data_list_origin", Any, "data_list_recursive")
-	})
 
-	View("default", func() {
-		Attribute("user_id")
-		Attribute("mail")
-		Attribute("user_name")
-		Example("example", func(){
-			Description("example of default")
-			Value(map[string]string{
-				"user_id": "1",
-				"user_name": "Hirano",
-				"mail": "Hirano@test.com",
+		View("default", func() {
+			Attribute("user_id")
+			Attribute("mail")
+			Attribute("user_name")
+			Example("example", func(){
+				Description("example of default")
+				Value(map[string]string{
+					"user_id": "1",
+					"user_name": "Hirano",
+					"mail": "Hirano@test.com",
+				})
 			})
 		})
-	})
 
-	View("extended", func() {
-		Attribute("user_id")
-		Attribute("mail")
-		Attribute("user_name")
-		Attribute("group_id")
-	})
+		View("extended", func() {
+			Attribute("user_id")
+			Attribute("mail")
+			Attribute("user_name")
+			Attribute("group_id")
+		})
 
-	View("data", func() {
-		Attribute("Data")
-		Attribute("data_type")
-		Attribute("data_name")
-	})
+		View("data", func() {
+			Attribute("Data")
+			Attribute("data_type")
+			Attribute("data_name")
+		})
 
-	View("data_extended", func() {
-		Attribute("Data")
-		Attribute("data_type")
-		Attribute("data_name")
-		Attribute("title")
-	})
+		View("data_extended", func() {
+			Attribute("Data")
+			Attribute("data_type")
+			Attribute("data_name")
+			Attribute("title")
+		})
 
-	View("data_extended_with_image", func() {
-		Attribute("Data")
-		Attribute("data_type")
-		Attribute("data_name")
-		Attribute("title")
-		Attribute("Image")
-		Attribute("image_name")
-	})
+		View("data_extended_with_image", func() {
+			Attribute("Data")
+			Attribute("data_type")
+			Attribute("data_name")
+			Attribute("title")
+			Attribute("Image")
+			Attribute("image_name")
+		})
 
-	View("data_list", func() {
-		Attribute("data_type")
-		Attribute("data_name")
-		Attribute("title")
-		Attribute("date_time")
-		Attribute("user_name")
-        Attribute("data_list_origin", func() {
-            View("data_list")
-        })
+		View("data_list_origin", func() {
+			Attribute("data_type")
+			Attribute("data_name")
+			Attribute("title")
+			Attribute("date_time")
+			Attribute("user_name")
+		})
+
+	})
+})
+
+// DataResult used by return data's list
+var DataResult = CollectionOf(MyResultType, func(){
+	View("data_list_origin")
+})
+
+// CustomErrorType is declation for responce error
+var CustomErrorType = ResultType("application/vnd.ssa.error", func() {
+	Attributes(func() {
+		Attribute("fault", Boolean, "Return false when Error occur", func() {
+			Default(true)
+			Example(true)
+		})
+		Attribute("message", String, "Error returned.", func() {
+			Meta("struct:error:name")
+			Example("不正なリクエストです")
+		})
+		Required("fault", "message")
+	})
+	View("default", func() {
+		Attribute("fault")
+		Attribute("message")
 	})
 })
 
 var _ = API("SSA", func() {
+	Meta("swagger:example", "false")
 	Title("SSAServer")
-	Description("Service for record talking.")
-	Version("1.0")
+	Description("SSAサービスのサーバーサイドプログラム")
+	Version("0.1")
 	Server("SSAServer", func() {
 		Host("localhost", func() {
 			URI("http://localhost:8000/")
@@ -165,3 +180,14 @@ var _ = API("SSA", func() {
 	})
 })
 
+var _ = API("Swagger", func() {
+	Title("Swagger UI for SSAServer")
+	Description("API仕様書")
+	Version("0.1")
+	Server("Swagger", func() {
+		Host("localhost", func() {
+			URI("http://localhost:8000/swagger-ui")
+		})
+		Services("Swagger")
+	})
+})

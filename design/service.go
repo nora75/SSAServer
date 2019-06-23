@@ -6,67 +6,34 @@ import (
 
 var _ = Service("SSAServer", func() {
 	Description("SSAアプリケーションのサーバーサイド")
-	Error("Invalid_User_ID")
-	Error("Invalid_Password")
-	Error("Invalid_Group_ID")
-	Error("Invalid_Request")
-	Error("Invalid_User_Name")
-	Error("Invalid_data_name")
-	Error("Invalid_Data")
-	Error("Invalid_mail-address")
-	Error("Require_Authentication")
-	Error("The_user_already_exists")
+	Error("Invalid_User_ID", CustomErrorType)
+	Error("Invalid_Password", CustomErrorType)
+	Error("Invalid_Group_ID", CustomErrorType)
+	Error("Invalid_Request", CustomErrorType)
+	Error("Invalid_User_Name", CustomErrorType)
+	Error("Invalid_data_name", CustomErrorType)
+	Error("Invalid_Data", CustomErrorType)
+	Error("Invalid_mail-address", CustomErrorType)
+	Error("Require_Authentication", CustomErrorType)
+	Error("The_user_already_exists", CustomErrorType)
 
 	Method("Register", func() {
 		Description("SSAへの新規登録")
 		Payload(func() {
 			Attribute("user_name", String, "User Name", func(){
-				Example("The user's name Hirano Tatsuya", func(){
-					Description("単純な例")
-					Value("Hirano Tatsuya")
-				})
-				Example("The user's name 平野 竜也", func(){
-					Description("UTF-8に対応")
-					Value("平野 竜也")
-				})
+				Example("単純な例、UTF-8に対応しています","平野竜也")
 			})
 			Attribute("password", String, "User Password", func(){
-				Example("The password is 'password'", func(){
-					Description("'password'がパスワードの場合")
-					Value("password")
-				})
-				Example("The password is 'PassW0rd!!@'", func(){
-					Description("'PassW0rd!!@'がパスワードの場合")
-					Value("PassW0rd!!@")
-				})
+				Example("'passW0rd'がパスワードの場合","passW0rd")
 			})
 			Attribute("mail", String, "User mail-address", func(){
-				Example("Example of mail-address", func(){
-					Description("メアド")
-					Value("hoge@hoge.com")
-				})
+				Format("email")
+				Example("メアド","hoge@hoge.com")
 			})
-			Attribute("group_id", String, "Gourp ID", func(){
-				Example("'bzuiphjjgdas'がグループ名の場合", func(){
-					Value("bzuiphjjgdas")
-				})
+			Attribute("group_id", String, "Group ID", func(){
+				Example("'bzuiphjjgdas'がグループ名の場合", "bzuiphjjgdas")
 			})
 			Required("user_name", "password", "mail")
-			Example("group_id抜きの例", func(){
-				Value(map[string]string{
-					"user_name": "hoge",
-					"password": "password",
-					"mail": "hoge@hoge.com",
-				})
-			})
-			Example("group_id付きの例", func(){
-				Value(map[string]string{
-					"user_name": "hoge",
-					"password": "password",
-					"mail": "hoge@hoge.com",
-					"group_id": "group1",
-				})
-			})
 		})
 
 		Result(MyResultType, func(){
@@ -91,20 +58,13 @@ var _ = Service("SSAServer", func() {
 	Method("Login", func() {
 		Description("SSAへのログイン")
 		Payload(func() {
-			Attribute("mail", MapOf(String, String), "User mail-address")
-			Attribute("password", MapOf(String, String), "User Password")
-			Attribute("group_id", MapOf(String, Int), "Gourp ID")
-			Attribute("user_id", MapOf(String, Int), "User ID")
+			Attribute("mail", String, "User mail-address", func(){
+				Example("hoge@hoge.com")
+			})
+			Attribute("password", String, "User Password", func(){
+				Example("password")
+			})
 			Required("mail", "password")
-			Example("group_id抜きの場合", func(){
-				Value(map[string]string{"mail": "hoge@hoge.com",
-					"password": "password"})
-			})
-			Example("group_id付きの場合", func(){
-				Value(map[string]string{"mail": "hoge@hoge.com",
-					"password": "password",
-					"group_id": "group1"})
-			})
 		})
 
 		Result(MyResultType, func(){
@@ -126,18 +86,18 @@ var _ = Service("SSAServer", func() {
 	})
 
 	Method("Change_group", func(){
-		Description("グループIDを変更する場合")
+		Description("グループIDを変更する")
 		Payload(func(){
-			Attribute("user_id", Int, "User ID")
-			Attribute("password", MapOf(String, String), "User password")
-			Attribute("group_id", MapOf(String, String), "Group ID")
-			Required("user_id", "password","group_id")
-			Example("'group2'へ変更", func(){
-				Value(map[string]string{
-					"password": "password",
-					"group_id": "group2",
-				})
+			Attribute("user_id", Int, "User ID", func(){
+				Example(123)
 			})
+			Attribute("password", String, "User password", func(){
+				Example("pass1234")
+			})
+			Attribute("group_id", String, "Group ID", func(){
+				Example("group2")
+			})
+			Required("user_id", "password","group_id")
 		})
 
 		HTTP(func(){
@@ -151,12 +111,13 @@ var _ = Service("SSAServer", func() {
 	Method("Delete_user", func(){
 		Description("既存ユーザーの消去")
 		Payload(func(){
-			Attribute("user_id", Int, "User ID")
-			Attribute("password", MapOf(String, String), "User Password")
-			Required("user_id", "password")
-			Example("ユーザー:'3123'の消去", func(){
-				Value(map[string]string{"password": "password"})
+			Attribute("user_id", Int, "User ID", func(){
+				Example(1342)
 			})
+			Attribute("password", String, "User Password", func(){
+				Example("pass12345")
+			})
+			Required("user_id", "password")
 		})
 
 		HTTP(func(){
@@ -166,18 +127,34 @@ var _ = Service("SSAServer", func() {
 		})
 	})
 
-	Method("Save", func() {
+	Method("Save_data", func() {
 		Description("データをサーバーへ保存する")
 		Payload(func() {
-			Attribute("group_id", String, "Gourp ID")
-			Attribute("user_id", MapOf(String, Int), "User ID")
-			Attribute("data_name", MapOf(String, String), "Data name")
-			Attribute("data_type", MapOf(String, Int), "Data name")
-			Attribute("Data1", MapOf(String, Any), "Data1")
-			Attribute("title", MapOf(String, String), "Diary title")
-			Attribute("image_name", MapOf(String, String), "Image name")
-			Attribute("Data2", MapOf(String, Any), "Data2")
-			Required("group_id", "user_id", "data_name", "Data1")
+			Attribute("group_id", String, "Group ID", func(){
+				Example("group1")
+			})
+			Attribute("user_id", Int, "User ID", func(){
+				Example(28532)
+			})
+			Attribute("data_name", String, "Data name", func(){
+				Example("Diary_312_2019-03-02_12-07-35")
+			})
+			Attribute("data_type", Int, "Data name", func(){
+				Example(1)
+			})
+			Attribute("Data", Any, "Data", func(){
+				Meta("swagger:example", "false")
+			})
+			Attribute("title", String, "Diary title", func(){
+				Example("たいとる")
+			})
+			Attribute("image_name", String, "Image name", func(){
+				Example("Image_2017-05-25-26-32")
+			})
+			Attribute("Image", Any, "Image", func(){
+				Meta("swagger:example", "false")
+			})
+			Required("group_id", "user_id", "data_name", "Data")
 		})
 
 		HTTP(func() {
@@ -193,14 +170,16 @@ var _ = Service("SSAServer", func() {
 	Method("Return_data_list", func() {
 		Description("データのリストを取得する")
 		Payload(func() {
-			Attribute("group_id", String, "Gourp ID")
-			Attribute("user_id", MapOf(String, Int), "User user_ID")
+			Attribute("group_id", String, "Group ID", func(){
+				Example("group-agieoa")
+			})
+			Attribute("user_id", Int, "User ID", func(){
+				Example(537829)
+			})
 			Required("group_id", "user_id")
 		})
 
-		Result(MyResultType, func(){
-			View("data_list")
-		})
+		Result(DataResult)
 
 		HTTP(func() {
 			GET("/group/{group_id}")
@@ -211,13 +190,21 @@ var _ = Service("SSAServer", func() {
 
 	})
 
-	Method("Pick_up", func() {
+	Method("Pick_up_data", func() {
 		Description("データをサーバーから取得する")
 		Payload(func() {
-			Attribute("group_id", String, "Gourp ID")
-			Attribute("user_id", MapOf(String, Int), "User ID")
-			Attribute("data_name", MapOf(String, String), "Data name")
-			Attribute("data_type", MapOf(String, String), "Data type")
+			Attribute("group_id", String, "Group ID", func(){
+				Example("group-isg")
+			})
+			Attribute("data_type", String, "Data type", func(){
+				Example("0")
+			})
+			Attribute("user_id", Int, "User ID", func(){
+				Example(65)
+			})
+			Attribute("data_name", String, "Data name", func(){
+				Example("Record_12_2019-06-02_12-07-35")
+			})
 			Required("group_id", "user_id", "data_name")
 		})
 
@@ -236,7 +223,7 @@ var _ = Service("SSAServer", func() {
 		})
 
 		HTTP(func() {
-			GET("/group/{group_id}")
+			GET("/group/{group_id}/{data_type}")
 			Response(StatusOK)
 			Response("Invalid_Group_ID", StatusNotFound)
 			Response("Invalid_Request", StatusBadRequest)
@@ -245,5 +232,9 @@ var _ = Service("SSAServer", func() {
 
 	})
 
+})
+
+var _ = Service("Swagger", func() {
+	Description("SSAアプリケーションのサーバーサイド")
 	Files("/openapi.json", "../../gen/http/openapi.json")
 })
