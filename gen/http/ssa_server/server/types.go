@@ -91,26 +91,13 @@ type PickUpDataRequestBody struct {
 // "Register" endpoint HTTP response body.
 type RegisterResponseBodyExtended struct {
 	// User id
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
+	UserID int `form:"user_id" json:"user_id" xml:"user_id"`
 	// User mail-address
-	Mail *string `form:"mail,omitempty" json:"mail,omitempty" xml:"mail,omitempty"`
+	Mail string `form:"mail" json:"mail" xml:"mail"`
 	// User Name
 	UserName *string `form:"user_name,omitempty" json:"user_name,omitempty" xml:"user_name,omitempty"`
 	// Group ID
-	GroupID string `form:"group_id" json:"group_id" xml:"group_id"`
-}
-
-// LoginResponseBodyExtended is the type of the "SSAServer" service "Login"
-// endpoint HTTP response body.
-type LoginResponseBodyExtended struct {
-	// User id
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
-	// User mail-address
-	Mail *string `form:"mail,omitempty" json:"mail,omitempty" xml:"mail,omitempty"`
-	// User Name
-	UserName *string `form:"user_name,omitempty" json:"user_name,omitempty" xml:"user_name,omitempty"`
-	// Group ID
-	GroupID string `form:"group_id" json:"group_id" xml:"group_id"`
+	GroupID *string `form:"group_id,omitempty" json:"group_id,omitempty" xml:"group_id,omitempty"`
 }
 
 // SsaResultResponseCollection is the type of the "SSAServer" service
@@ -382,26 +369,14 @@ type SsaResultResponseDataListOrigin struct {
 // result of the "Register" endpoint of the "SSAServer" service.
 func NewRegisterResponseBodyExtended(res *ssaserverviews.SsaResultView) *RegisterResponseBodyExtended {
 	body := &RegisterResponseBodyExtended{
-		UserID:   res.UserID,
 		UserName: res.UserName,
-		Mail:     res.Mail,
+		GroupID:  res.GroupID,
 	}
-	if res.GroupID != nil {
-		body.GroupID = *res.GroupID
+	if res.UserID != nil {
+		body.UserID = *res.UserID
 	}
-	return body
-}
-
-// NewLoginResponseBodyExtended builds the HTTP response body from the result
-// of the "Login" endpoint of the "SSAServer" service.
-func NewLoginResponseBodyExtended(res *ssaserverviews.SsaResultView) *LoginResponseBodyExtended {
-	body := &LoginResponseBodyExtended{
-		UserID:   res.UserID,
-		UserName: res.UserName,
-		Mail:     res.Mail,
-	}
-	if res.GroupID != nil {
-		body.GroupID = *res.GroupID
+	if res.Mail != nil {
+		body.Mail = *res.Mail
 	}
 	return body
 }

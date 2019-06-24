@@ -37,12 +37,8 @@ var _ = Service("SSAServer", func() {
 		})
 
 		Result(MyResultType, func(){
-			View("default")
-		})
-
-		Result(MyResultType, func(){
 			View("extended")
-			Required("group_id")
+			Required("user_id","mail")
 		})
 
 		HTTP(func() {
@@ -67,14 +63,7 @@ var _ = Service("SSAServer", func() {
 			Required("mail", "password")
 		})
 
-		Result(MyResultType, func(){
-			View("default")
-		})
-
-		Result(MyResultType, func(){
-			View("extended")
-			Required("group_id")
-		})
+		Result(Boolean)
 
 		HTTP(func() {
 			POST("/Login")
@@ -100,6 +89,8 @@ var _ = Service("SSAServer", func() {
 			Required("user_id", "password","group_id")
 		})
 
+		Result(Boolean)
+
 		HTTP(func(){
 			POST("/users/{user_id}")
 			Response("Invalid_Group_ID", StatusBadRequest)
@@ -119,6 +110,8 @@ var _ = Service("SSAServer", func() {
 			})
 			Required("user_id", "password")
 		})
+
+		Result(Boolean)
 
 		HTTP(func(){
 			DELETE("/users/{user_id}")
@@ -157,8 +150,11 @@ var _ = Service("SSAServer", func() {
 			Required("group_id", "user_id", "data_name", "Data")
 		})
 
+		Result(Boolean)
+
 		HTTP(func() {
 			POST("/group/{group_id}")
+			MultipartRequest()
 			Response("Invalid_Group_ID", StatusNotFound)
 			Response("Invalid_Request", StatusBadRequest)
 			Response("Invalid_Data", StatusBadRequest)
@@ -209,21 +205,13 @@ var _ = Service("SSAServer", func() {
 		})
 
 		Result(MyResultType, func(){
-			View("data")
-		})
-
-		Result(MyResultType, func(){
-			View("data_extended")
-			Required("title")
-		})
-
-		Result(MyResultType, func(){
 			View("data_extended_with_image")
-			Required("title", "image_name")
+			Required("Data", "data_type", "data_name")
 		})
 
 		HTTP(func() {
 			GET("/group/{group_id}/{data_type}")
+			MultipartRequest()
 			Response(StatusOK)
 			Response("Invalid_Group_ID", StatusNotFound)
 			Response("Invalid_Request", StatusBadRequest)

@@ -33,7 +33,7 @@ paths:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/SSAServerLoginResponseBodyExtended'
+            type: boolean
         "400":
           description: Bad Request response.
           schema:
@@ -221,6 +221,8 @@ paths:
       responses:
         "200":
           description: OK response.
+          schema:
+            type: boolean
         "400":
           description: Bad Request response.
           schema:
@@ -249,6 +251,8 @@ paths:
       responses:
         "200":
           description: OK response.
+          schema:
+            type: boolean
         "400":
           description: Bad Request response.
           schema:
@@ -405,35 +409,6 @@ definitions:
     required:
     - mail
     - password
-  SSAServerLoginResponseBodyExtended:
-    title: 'Mediatype identifier: application/vnd.ssa.result; view=extended'
-    type: object
-    properties:
-      group_id:
-        type: string
-        description: Group ID
-        example: bzuiphjjgdas
-      mail:
-        type: string
-        description: User mail-address
-        example: hoge@hoge.com
-      user_id:
-        type: integer
-        description: User id
-        example: 234
-        format: int64
-      user_name:
-        type: string
-        description: User Name
-        example: 平野 竜也
-    description: LoginResponseBody result type (extended view) (default view)
-    example:
-      group_id: bzuiphjjgdas
-      mail: hoge@hoge.com
-      user_id: 234
-      user_name: 平野 竜也
-    required:
-    - group_id
   SSAServerPick_up_data_Invalid_Group_ID_Response_Body:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
@@ -502,10 +477,10 @@ definitions:
     properties:
       Data:
         description: Data
-        example: Et et.
+        example: Fugiat rerum eum.
       Image:
         description: Image data
-        example: Unde non.
+        example: Quo quae.
       data_name:
         type: string
         description: Data name
@@ -526,8 +501,8 @@ definitions:
     description: Pick_up_data_Response_Body result type (data_extended_with_image
       view) (default view)
     example:
-      Data: Rerum eum.
-      Image: Quo quae.
+      Data: Voluptatem occaecati.
+      Image: Et iste quo deleniti.
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: huge
@@ -673,7 +648,8 @@ definitions:
       user_id: 234
       user_name: 平野 竜也
     required:
-    - group_id
+    - user_id
+    - mail
   SSAServerReturn_data_list_Invalid_Group_ID_Response_Body:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
@@ -795,10 +771,10 @@ definitions:
     properties:
       Data:
         description: Data
-        example: Molestiae ut sint sunt deserunt quia.
+        example: Adipisci quasi sit.
       Image:
         description: Image
-        example: Adipisci quasi sit.
+        example: Eaque laudantium aut eum eos harum ea.
       data_name:
         type: string
         description: Data name
@@ -822,8 +798,8 @@ definitions:
         example: 28532
         format: int64
     example:
-      Data: Eaque laudantium aut eum eos harum ea.
-      Image: Sint ipsa repudiandae voluptas labore voluptatem.
+      Data: Sint ipsa repudiandae voluptas labore voluptatem.
+      Image: Sint et et nam.
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: Image_2017-05-25-26-32
@@ -841,6 +817,12 @@ definitions:
     description: Return_data_list_Response_Body is the result type for an array of
       SsaResultResponse (default view)
     example:
+    - mail: hoge@hoge.com
+      user_id: 234
+      user_name: 平野 竜也
+    - mail: hoge@hoge.com
+      user_id: 234
+      user_name: 平野 竜也
     - mail: hoge@hoge.com
       user_id: 234
       user_name: 平野 竜也

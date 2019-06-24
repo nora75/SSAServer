@@ -17,11 +17,11 @@ type Service interface {
 	// SSAへの新規登録
 	Register(context.Context, *RegisterPayload) (res *SsaResult, err error)
 	// SSAへのログイン
-	Login(context.Context, *LoginPayload) (res *SsaResult, err error)
+	Login(context.Context, *LoginPayload) (res bool, err error)
 	// グループIDを変更する
-	ChangeGroup(context.Context, *ChangeGroupPayload) (err error)
+	ChangeGroup(context.Context, *ChangeGroupPayload) (res bool, err error)
 	// 既存ユーザーの消去
-	DeleteUser(context.Context, *DeleteUserPayload) (err error)
+	DeleteUser(context.Context, *DeleteUserPayload) (res bool, err error)
 	// データをサーバーへ保存する
 	SaveData(context.Context, *SaveDataPayload) (err error)
 	// データのリストを取得する
@@ -279,9 +279,13 @@ func NewViewedSsaResultCollection(res SsaResultCollection, view string) ssaserve
 // newSsaResult converts projected type SsaResult to service type SsaResult.
 func newSsaResult(vres *ssaserverviews.SsaResultView) *SsaResult {
 	res := &SsaResult{
-		UserID:   vres.UserID,
-		Mail:     vres.Mail,
 		UserName: vres.UserName,
+	}
+	if vres.UserID != nil {
+		res.UserID = vres.UserID
+	}
+	if vres.Mail != nil {
+		res.Mail = vres.Mail
 	}
 	return res
 }
@@ -290,12 +294,14 @@ func newSsaResult(vres *ssaserverviews.SsaResultView) *SsaResult {
 // SsaResult.
 func newSsaResultExtended(vres *ssaserverviews.SsaResultView) *SsaResult {
 	res := &SsaResult{
-		UserID:   vres.UserID,
-		Mail:     vres.Mail,
 		UserName: vres.UserName,
+		GroupID:  vres.GroupID,
 	}
-	if vres.GroupID != nil {
-		res.GroupID = vres.GroupID
+	if vres.UserID != nil {
+		res.UserID = vres.UserID
+	}
+	if vres.Mail != nil {
+		res.Mail = vres.Mail
 	}
 	return res
 }

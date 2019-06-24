@@ -67,12 +67,7 @@ func NewRegisterEndpoint(s Service) goa.Endpoint {
 func NewLoginEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*LoginPayload)
-		res, err := s.Login(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-		vres := NewViewedSsaResult(res, "extended")
-		return vres, nil
+		return s.Login(ctx, p)
 	}
 }
 
@@ -81,7 +76,7 @@ func NewLoginEndpoint(s Service) goa.Endpoint {
 func NewChangeGroupEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*ChangeGroupPayload)
-		return nil, s.ChangeGroup(ctx, p)
+		return s.ChangeGroup(ctx, p)
 	}
 }
 
@@ -90,7 +85,7 @@ func NewChangeGroupEndpoint(s Service) goa.Endpoint {
 func NewDeleteUserEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*DeleteUserPayload)
-		return nil, s.DeleteUser(ctx, p)
+		return s.DeleteUser(ctx, p)
 	}
 }
 

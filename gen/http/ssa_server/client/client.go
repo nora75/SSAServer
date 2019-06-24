@@ -8,7 +8,9 @@
 package client
 
 import (
+	ssaserver "SSAServer/gen/ssa_server"
 	"context"
+	"mime/multipart"
 	"net/http"
 
 	goahttp "goa.design/goa/v3/http"
@@ -53,6 +55,14 @@ type Client struct {
 	encoder func(*http.Request) goahttp.Encoder
 	decoder func(*http.Response) goahttp.Decoder
 }
+
+// SSAServerSaveDataEncoderFunc is the type to encode multipart request for the
+// "SSAServer" service "Save_data" endpoint.
+type SSAServerSaveDataEncoderFunc func(*multipart.Writer, *ssaserver.SaveDataPayload) error
+
+// SSAServerPickUpDataEncoderFunc is the type to encode multipart request for
+// the "SSAServer" service "Pick_up_data" endpoint.
+type SSAServerPickUpDataEncoderFunc func(*multipart.Writer, *ssaserver.PickUpDataPayload) error
 
 // NewClient instantiates HTTP clients for all the SSAServer service servers.
 func NewClient(
@@ -181,9 +191,9 @@ func (c *Client) DeleteUser() goa.Endpoint {
 
 // SaveData returns an endpoint that makes HTTP requests to the SSAServer
 // service Save_data server.
-func (c *Client) SaveData() goa.Endpoint {
+func (c *Client) SaveData(sSAServerSaveDataEncoderFn SSAServerSaveDataEncoderFunc) goa.Endpoint {
 	var (
-		encodeRequest  = EncodeSaveDataRequest(c.encoder)
+		encodeRequest  = EncodeSaveDataRequest(NewSSAServerSaveDataEncoder(sSAServerSaveDataEncoderFn))
 		decodeResponse = DecodeSaveDataResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
@@ -231,9 +241,9 @@ func (c *Client) ReturnDataList() goa.Endpoint {
 
 // PickUpData returns an endpoint that makes HTTP requests to the SSAServer
 // service Pick_up_data server.
-func (c *Client) PickUpData() goa.Endpoint {
+func (c *Client) PickUpData(sSAServerPickUpDataEncoderFn SSAServerPickUpDataEncoderFunc) goa.Endpoint {
 	var (
-		encodeRequest  = EncodePickUpDataRequest(c.encoder)
+		encodeRequest  = EncodePickUpDataRequest(NewSSAServerPickUpDataEncoder(sSAServerPickUpDataEncoderFn))
 		decodeResponse = DecodePickUpDataResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v interface{}) (interface{}, error) {

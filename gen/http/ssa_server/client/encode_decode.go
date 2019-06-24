@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 
@@ -201,21 +202,14 @@ func DecodeLoginResponse(decoder func(*http.Response) goahttp.Decoder, restoreBo
 		switch resp.StatusCode {
 		case http.StatusOK:
 			var (
-				body LoginResponseBody
+				body bool
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("SSAServer", "Login", err)
 			}
-			p := NewLoginSsaResultOK(&body)
-			view := "extended"
-			vres := &ssaserverviews.SsaResult{p, view}
-			if err = ssaserverviews.ValidateSsaResult(vres); err != nil {
-				return nil, goahttp.ErrValidationError("SSAServer", "Login", err)
-			}
-			res := ssaserver.NewSsaResult(vres)
-			return res, nil
+			return body, nil
 		case http.StatusBadRequest:
 			var (
 				body LoginInvalidRequestResponseBody
@@ -315,7 +309,15 @@ func DecodeChangeGroupResponse(decoder func(*http.Response) goahttp.Decoder, res
 		}
 		switch resp.StatusCode {
 		case http.StatusOK:
-			return nil, nil
+			var (
+				body bool
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("SSAServer", "Change_group", err)
+			}
+			return body, nil
 		case http.StatusBadRequest:
 			en := resp.Header.Get("goa-error")
 			switch en {
@@ -421,7 +423,15 @@ func DecodeDeleteUserResponse(decoder func(*http.Response) goahttp.Decoder, rest
 		}
 		switch resp.StatusCode {
 		case http.StatusOK:
-			return nil, nil
+			var (
+				body bool
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("SSAServer", "Delete_user", err)
+			}
+			return body, nil
 		case http.StatusBadRequest:
 			var (
 				body DeleteUserInvalidRequestResponseBody
@@ -476,11 +486,28 @@ func EncodeSaveDataRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if !ok {
 			return goahttp.ErrInvalidType("SSAServer", "Save_data", "*ssaserver.SaveDataPayload", v)
 		}
-		body := NewSaveDataRequestBody(p)
-		if err := encoder(req).Encode(&body); err != nil {
+		if err := encoder(req).Encode(p); err != nil {
 			return goahttp.ErrEncodingError("SSAServer", "Save_data", err)
 		}
 		return nil
+	}
+}
+
+// NewSSAServerSaveDataEncoder returns an encoder to encode the multipart
+// request for the "SSAServer" service "Save_data" endpoint.
+func NewSSAServerSaveDataEncoder(encoderFn SSAServerSaveDataEncoderFunc) func(r *http.Request) goahttp.Encoder {
+	return func(r *http.Request) goahttp.Encoder {
+		body := &bytes.Buffer{}
+		mw := multipart.NewWriter(body)
+		return goahttp.EncodingFunc(func(v interface{}) error {
+			p := v.(*ssaserver.SaveDataPayload)
+			if err := encoderFn(mw, p); err != nil {
+				return err
+			}
+			r.Body = ioutil.NopCloser(body)
+			r.Header.Set("Content-Type", mw.FormDataContentType())
+			return mw.Close()
+		})
 	}
 }
 
@@ -717,11 +744,28 @@ func EncodePickUpDataRequest(encoder func(*http.Request) goahttp.Encoder) func(*
 		if !ok {
 			return goahttp.ErrInvalidType("SSAServer", "Pick_up_data", "*ssaserver.PickUpDataPayload", v)
 		}
-		body := NewPickUpDataRequestBody(p)
-		if err := encoder(req).Encode(&body); err != nil {
+		if err := encoder(req).Encode(p); err != nil {
 			return goahttp.ErrEncodingError("SSAServer", "Pick_up_data", err)
 		}
 		return nil
+	}
+}
+
+// NewSSAServerPickUpDataEncoder returns an encoder to encode the multipart
+// request for the "SSAServer" service "Pick_up_data" endpoint.
+func NewSSAServerPickUpDataEncoder(encoderFn SSAServerPickUpDataEncoderFunc) func(r *http.Request) goahttp.Encoder {
+	return func(r *http.Request) goahttp.Encoder {
+		body := &bytes.Buffer{}
+		mw := multipart.NewWriter(body)
+		return goahttp.EncodingFunc(func(v interface{}) error {
+			p := v.(*ssaserver.PickUpDataPayload)
+			if err := encoderFn(mw, p); err != nil {
+				return err
+			}
+			r.Body = ioutil.NopCloser(body)
+			r.Header.Set("Content-Type", mw.FormDataContentType())
+			return mw.Close()
+		})
 	}
 }
 

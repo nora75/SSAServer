@@ -1,6 +1,7 @@
 package main
 
 import (
+	ssa "SSAServer"
 	ssaserversvr "SSAServer/gen/http/ssa_server/server"
 	ssaserver "SSAServer/gen/ssa_server"
 	"context"
@@ -53,7 +54,7 @@ func handleHTTPServer(ctx context.Context, u *url.URL, sSAServerEndpoints *ssase
 	)
 	{
 		eh := errorHandler(logger)
-		sSAServerServer = ssaserversvr.New(sSAServerEndpoints, mux, dec, enc, eh)
+		sSAServerServer = ssaserversvr.New(sSAServerEndpoints, mux, dec, enc, eh, ssa.SSAServerSaveDataDecoderFunc, ssa.SSAServerPickUpDataDecoderFunc)
 	}
 	// Configure the mux.
 	ssaserversvr.Mount(mux, sSAServerServer)

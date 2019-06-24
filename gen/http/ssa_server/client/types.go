@@ -116,35 +116,6 @@ type RegisterResponseBody struct {
 	DateTime *string `form:"date_time,omitempty" json:"date_time,omitempty" xml:"date_time,omitempty"`
 }
 
-// LoginResponseBody is the type of the "SSAServer" service "Login" endpoint
-// HTTP response body.
-type LoginResponseBody struct {
-	// User id
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
-	// User Name
-	UserName *string `form:"user_name,omitempty" json:"user_name,omitempty" xml:"user_name,omitempty"`
-	// User Password
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
-	// User mail-address
-	Mail *string `form:"mail,omitempty" json:"mail,omitempty" xml:"mail,omitempty"`
-	// Group ID
-	GroupID *string `form:"group_id,omitempty" json:"group_id,omitempty" xml:"group_id,omitempty"`
-	// Data name
-	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
-	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
-	// Image data
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
-	// Data's name
-	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
-	// Data title
-	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
-	// image's name
-	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
-	// date time
-	DateTime *string `form:"date_time,omitempty" json:"date_time,omitempty" xml:"date_time,omitempty"`
-}
-
 // ReturnDataListResponseBody is the type of the "SSAServer" service
 // "Return_data_list" endpoint HTTP response body.
 type ReturnDataListResponseBody []*SsaResultResponse
@@ -474,26 +445,6 @@ func NewRegisterInvalidRequest(body *RegisterInvalidRequestResponseBody) *ssaser
 	v := &ssaserver.SsaError{
 		Fault:   *body.Fault,
 		Message: *body.Message,
-	}
-	return v
-}
-
-// NewLoginSsaResultOK builds a "SSAServer" service "Login" endpoint result
-// from a HTTP "OK" response.
-func NewLoginSsaResultOK(body *LoginResponseBody) *ssaserverviews.SsaResultView {
-	v := &ssaserverviews.SsaResultView{
-		UserID:    body.UserID,
-		UserName:  body.UserName,
-		Password:  body.Password,
-		Mail:      body.Mail,
-		GroupID:   body.GroupID,
-		DataName:  body.DataName,
-		Data:      body.Data,
-		Image:     body.Image,
-		DataType:  body.DataType,
-		Title:     body.Title,
-		ImageName: body.ImageName,
-		DateTime:  body.DateTime,
 	}
 	return v
 }

@@ -48,25 +48,33 @@ func (c *Client) Register(ctx context.Context, p *RegisterPayload) (res *SsaResu
 }
 
 // Login calls the "Login" endpoint of the "SSAServer" service.
-func (c *Client) Login(ctx context.Context, p *LoginPayload) (res *SsaResult, err error) {
+func (c *Client) Login(ctx context.Context, p *LoginPayload) (res bool, err error) {
 	var ires interface{}
 	ires, err = c.LoginEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.(*SsaResult), nil
+	return ires.(bool), nil
 }
 
 // ChangeGroup calls the "Change_group" endpoint of the "SSAServer" service.
-func (c *Client) ChangeGroup(ctx context.Context, p *ChangeGroupPayload) (err error) {
-	_, err = c.ChangeGroupEndpoint(ctx, p)
-	return
+func (c *Client) ChangeGroup(ctx context.Context, p *ChangeGroupPayload) (res bool, err error) {
+	var ires interface{}
+	ires, err = c.ChangeGroupEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(bool), nil
 }
 
 // DeleteUser calls the "Delete_user" endpoint of the "SSAServer" service.
-func (c *Client) DeleteUser(ctx context.Context, p *DeleteUserPayload) (err error) {
-	_, err = c.DeleteUserEndpoint(ctx, p)
-	return
+func (c *Client) DeleteUser(ctx context.Context, p *DeleteUserPayload) (res bool, err error) {
+	var ires interface{}
+	ires, err = c.DeleteUserEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(bool), nil
 }
 
 // SaveData calls the "Save_data" endpoint of the "SSAServer" service.

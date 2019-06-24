@@ -1,6 +1,7 @@
 package main
 
 import (
+	ssa "SSAServer"
 	cli "SSAServer/gen/http/cli/ssa_server"
 	"net/http"
 	"time"
@@ -27,6 +28,8 @@ func doHTTP(scheme, host string, timeout int, debug bool) (goa.Endpoint, interfa
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,
 		debug,
+		ssa.SSAServerSaveDataEncoderFunc,
+		ssa.SSAServerPickUpDataEncoderFunc,
 	)
 }
 

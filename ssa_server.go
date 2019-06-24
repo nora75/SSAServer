@@ -8,6 +8,8 @@ import (
 	"fmt"
 )
 
+var counter = 0
+
 // SSAServer service example implementation.
 // The example methods log the requests and return zero values.
 type sSAServersrvc struct {
@@ -23,33 +25,47 @@ func NewSSAServer(logger *log.Logger) ssaserver.Service {
 func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPayload) (res *ssaserver.SsaResult, err error) {
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Register")
+	res.UserName = &p.UserName
+	res.Mail = &p.Mail
+	res.UserID = &counter
+	counter++
+	if p.GroupID == nil {
+		var group_name = "test-group"
+		res.GroupID = &group_name
+	} else {
+		res.GroupID = p.GroupID
+	}
 	return res, nil
 }
 
 // SSAへのログイン
-func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (res *ssaserver.SsaResult, err error) {
-	res = &ssaserver.SsaResult{}
+func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Login")
-	return res, nil
+    r := regexp.MustCompile(`pass`)
+	if r.MatchString(p.Password) {
+		return false, fmt.Errorf("パスワードが不正です。")
+	}
+	return true, nil
 }
 
 // グループIDを変更する
-func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (err error) {
+func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
-	return nil
+    r := regexp.MustCompile(`group`)
+	if r.MatchString(p.GroupID) {
+		return true , nil
+	}
+	return false , fmt.Errorf("不正なグループ名です。")
 }
 
 // 既存ユーザーの消去
-func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (err error) {
+func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Delete_user")
     r := regexp.MustCompile(`pass`)
-	var mes string
 	if r.MatchString(p.Password) {
-		mes = "パスワードが不正です。"
-	} else {
-		mes = "正常に消去出来ました"
+		return false, fmt.Errorf("パスワードが不正です。")
 	}
-	return fmt.Errorf("err %s", mes)
+	return true, nil
 }
 
 // データをサーバーへ保存する
@@ -61,7 +77,7 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	} else {
 		mes = "録音"
 	}
-	return fmt.Errorf("err %s", mes)
+	return fmt.Errorf("%s", mes)
 }
 
 // データのリストを取得する

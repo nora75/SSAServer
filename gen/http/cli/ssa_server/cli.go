@@ -46,6 +46,8 @@ func ParseEndpoint(
 	enc func(*http.Request) goahttp.Encoder,
 	dec func(*http.Response) goahttp.Decoder,
 	restore bool,
+	sSAServerSaveDataEncoderFn ssaserverc.SSAServerSaveDataEncoderFunc,
+	sSAServerPickUpDataEncoderFn ssaserverc.SSAServerPickUpDataEncoderFunc,
 ) (goa.Endpoint, interface{}, error) {
 	var (
 		sSAServerFlags = flag.NewFlagSet("ssa-server", flag.ContinueOnError)
@@ -179,13 +181,13 @@ func ParseEndpoint(
 				endpoint = c.DeleteUser()
 				data, err = ssaserverc.BuildDeleteUserPayload(*sSAServerDeleteUserBodyFlag, *sSAServerDeleteUserUserIDFlag)
 			case "save-data":
-				endpoint = c.SaveData()
+				endpoint = c.SaveData(sSAServerSaveDataEncoderFn)
 				data, err = ssaserverc.BuildSaveDataPayload(*sSAServerSaveDataBodyFlag, *sSAServerSaveDataGroupIDFlag)
 			case "return-data-list":
 				endpoint = c.ReturnDataList()
 				data, err = ssaserverc.BuildReturnDataListPayload(*sSAServerReturnDataListBodyFlag, *sSAServerReturnDataListGroupIDFlag)
 			case "pick-up-data":
-				endpoint = c.PickUpData()
+				endpoint = c.PickUpData(sSAServerPickUpDataEncoderFn)
 				data, err = ssaserverc.BuildPickUpDataPayload(*sSAServerPickUpDataBodyFlag, *sSAServerPickUpDataGroupIDFlag, *sSAServerPickUpDataDataTypeFlag)
 			}
 		}
@@ -285,8 +287,8 @@ func sSAServerSaveDataUsage() {
 
 Example:
     `+os.Args[0]+` ssa-server save-data --body '{
-      "Data": "Magni rerum reprehenderit.",
-      "Image": "Molestiae aut quis optio rerum corrupti.",
+      "Data": "Rerum reprehenderit qui molestiae.",
+      "Image": "Quis optio rerum corrupti mollitia ut dolore.",
       "data_name": "Diary_312_2019-03-02_12-07-35",
       "data_type": 1,
       "image_name": "Image_2017-05-25-26-32",

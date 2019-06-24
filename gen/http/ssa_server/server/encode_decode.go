@@ -97,9 +97,9 @@ func EncodeRegisterError(encoder func(context.Context, http.ResponseWriter) goah
 // SSAServer Login endpoint.
 func EncodeLoginResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
-		res := v.(*ssaserverviews.SsaResult)
+		res := v.(bool)
 		enc := encoder(ctx, w)
-		body := NewLoginResponseBodyExtended(res.Projected)
+		body := res
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
@@ -164,8 +164,11 @@ func EncodeLoginError(encoder func(context.Context, http.ResponseWriter) goahttp
 // SSAServer Change_group endpoint.
 func EncodeChangeGroupResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(bool)
+		enc := encoder(ctx, w)
+		body := res
 		w.WriteHeader(http.StatusOK)
-		return nil
+		return enc.Encode(body)
 	}
 }
 
@@ -245,8 +248,11 @@ func EncodeChangeGroupError(encoder func(context.Context, http.ResponseWriter) g
 // SSAServer Delete_user endpoint.
 func EncodeDeleteUserResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(bool)
+		enc := encoder(ctx, w)
+		body := res
 		w.WriteHeader(http.StatusOK)
-		return nil
+		return enc.Encode(body)
 	}
 }
 
@@ -328,31 +334,38 @@ func EncodeSaveDataResponse(encoder func(context.Context, http.ResponseWriter) g
 // Save_data endpoint.
 func DecodeSaveDataRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
-		var (
-			body SaveDataRequestBody
-			err  error
-		)
-		err = decoder(r).Decode(&body)
-		if err != nil {
-			if err == io.EOF {
-				return nil, goa.MissingPayloadError()
-			}
+		var payload *ssaserver.SaveDataPayload
+		if err := decoder(r).Decode(&payload); err != nil {
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidateSaveDataRequestBody(&body)
-		if err != nil {
-			return nil, err
-		}
-
-		var (
-			groupID string
-
-			params = mux.Vars(r)
-		)
-		groupID = params["group_id"]
-		payload := NewSaveDataPayload(&body, groupID)
 
 		return payload, nil
+	}
+}
+
+// NewSSAServerSaveDataDecoder returns a decoder to decode the multipart
+// request for the "SSAServer" service "Save_data" endpoint.
+func NewSSAServerSaveDataDecoder(mux goahttp.Muxer, sSAServerSaveDataDecoderFn SSAServerSaveDataDecoderFunc) func(r *http.Request) goahttp.Decoder {
+	return func(r *http.Request) goahttp.Decoder {
+		return goahttp.EncodingFunc(func(v interface{}) error {
+			mr, merr := r.MultipartReader()
+			if merr != nil {
+				return merr
+			}
+			p := v.(**ssaserver.SaveDataPayload)
+			if err := sSAServerSaveDataDecoderFn(mr, p); err != nil {
+				return err
+			}
+
+			var (
+				groupID string
+
+				params = mux.Vars(r)
+			)
+			groupID = params["group_id"]
+			(*p).GroupID = groupID
+			return nil
+		})
 	}
 }
 
@@ -498,33 +511,41 @@ func EncodePickUpDataResponse(encoder func(context.Context, http.ResponseWriter)
 // Pick_up_data endpoint.
 func DecodePickUpDataRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
 	return func(r *http.Request) (interface{}, error) {
-		var (
-			body PickUpDataRequestBody
-			err  error
-		)
-		err = decoder(r).Decode(&body)
-		if err != nil {
-			if err == io.EOF {
-				return nil, goa.MissingPayloadError()
-			}
+		var payload *ssaserver.PickUpDataPayload
+		if err := decoder(r).Decode(&payload); err != nil {
 			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = ValidatePickUpDataRequestBody(&body)
-		if err != nil {
-			return nil, err
-		}
-
-		var (
-			groupID  string
-			dataType string
-
-			params = mux.Vars(r)
-		)
-		groupID = params["group_id"]
-		dataType = params["data_type"]
-		payload := NewPickUpDataPayload(&body, groupID, dataType)
 
 		return payload, nil
+	}
+}
+
+// NewSSAServerPickUpDataDecoder returns a decoder to decode the multipart
+// request for the "SSAServer" service "Pick_up_data" endpoint.
+func NewSSAServerPickUpDataDecoder(mux goahttp.Muxer, sSAServerPickUpDataDecoderFn SSAServerPickUpDataDecoderFunc) func(r *http.Request) goahttp.Decoder {
+	return func(r *http.Request) goahttp.Decoder {
+		return goahttp.EncodingFunc(func(v interface{}) error {
+			mr, merr := r.MultipartReader()
+			if merr != nil {
+				return merr
+			}
+			p := v.(**ssaserver.PickUpDataPayload)
+			if err := sSAServerPickUpDataDecoderFn(mr, p); err != nil {
+				return err
+			}
+
+			var (
+				groupID  string
+				dataType string
+
+				params = mux.Vars(r)
+			)
+			groupID = params["group_id"]
+			dataType = params["data_type"]
+			(*p).GroupID = groupID
+			(*p).DataType = &dataType
+			return nil
+		})
 	}
 }
 

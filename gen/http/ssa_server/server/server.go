@@ -10,6 +10,7 @@ package server
 import (
 	ssaserver "SSAServer/gen/ssa_server"
 	"context"
+	"mime/multipart"
 	"net/http"
 
 	goahttp "goa.design/goa/v3/http"
@@ -45,6 +46,14 @@ type MountPoint struct {
 	Pattern string
 }
 
+// SSAServerSaveDataDecoderFunc is the type to decode multipart request for the
+// "SSAServer" service "Save_data" endpoint.
+type SSAServerSaveDataDecoderFunc func(*multipart.Reader, **ssaserver.SaveDataPayload) error
+
+// SSAServerPickUpDataDecoderFunc is the type to decode multipart request for
+// the "SSAServer" service "Pick_up_data" endpoint.
+type SSAServerPickUpDataDecoderFunc func(*multipart.Reader, **ssaserver.PickUpDataPayload) error
+
 // New instantiates HTTP handlers for all the SSAServer service endpoints.
 func New(
 	e *ssaserver.Endpoints,
@@ -52,6 +61,8 @@ func New(
 	dec func(*http.Request) goahttp.Decoder,
 	enc func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	eh func(context.Context, http.ResponseWriter, error),
+	sSAServerSaveDataDecoderFn SSAServerSaveDataDecoderFunc,
+	sSAServerPickUpDataDecoderFn SSAServerPickUpDataDecoderFunc,
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
@@ -68,9 +79,9 @@ func New(
 		Login:          NewLoginHandler(e.Login, mux, dec, enc, eh),
 		ChangeGroup:    NewChangeGroupHandler(e.ChangeGroup, mux, dec, enc, eh),
 		DeleteUser:     NewDeleteUserHandler(e.DeleteUser, mux, dec, enc, eh),
-		SaveData:       NewSaveDataHandler(e.SaveData, mux, dec, enc, eh),
+		SaveData:       NewSaveDataHandler(e.SaveData, mux, NewSSAServerSaveDataDecoder(mux, sSAServerSaveDataDecoderFn), enc, eh),
 		ReturnDataList: NewReturnDataListHandler(e.ReturnDataList, mux, dec, enc, eh),
-		PickUpData:     NewPickUpDataHandler(e.PickUpData, mux, dec, enc, eh),
+		PickUpData:     NewPickUpDataHandler(e.PickUpData, mux, NewSSAServerPickUpDataDecoder(mux, sSAServerPickUpDataDecoderFn), enc, eh),
 	}
 }
 
