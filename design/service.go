@@ -232,5 +232,5 @@ var _ = Service("SSAServer", func() {
 
 	})
 
-	Files("/openapi.json", "../../gen/http/openapi.json")
+	Files("/openapi.json", "/gen/http/openapi.json")
 })

@@ -2,3 +2,4 @@ go.sum
 go.mod
 test/*
 test
+ssa_server.exe
