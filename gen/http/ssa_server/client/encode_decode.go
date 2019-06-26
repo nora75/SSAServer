@@ -535,7 +535,15 @@ func DecodeSaveDataResponse(decoder func(*http.Response) goahttp.Decoder, restor
 		}
 		switch resp.StatusCode {
 		case http.StatusOK:
-			return nil, nil
+			var (
+				body bool
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("SSAServer", "Save_data", err)
+			}
+			return body, nil
 		case http.StatusNotFound:
 			var (
 				body SaveDataInvalidGroupIDResponseBody

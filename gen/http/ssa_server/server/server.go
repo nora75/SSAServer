@@ -73,7 +73,7 @@ func New(
 			{"SaveData", "POST", "/group/{group_id}"},
 			{"ReturnDataList", "GET", "/group/{group_id}"},
 			{"PickUpData", "GET", "/group/{group_id}/{data_type}"},
-			{"/gen/http/openapi.json", "GET", "/openapi.json"},
+			{"gen/http/openapi.json", "GET", "/openapi.json"},
 		},
 		Register:       NewRegisterHandler(e.Register, mux, dec, enc, eh),
 		Login:          NewLoginHandler(e.Login, mux, dec, enc, eh),
@@ -109,7 +109,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountReturnDataListHandler(mux, h.ReturnDataList)
 	MountPickUpDataHandler(mux, h.PickUpData)
 	MountGenHTTPOpenapiJSON(mux, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "/gen/http/openapi.json")
+		http.ServeFile(w, r, "gen/http/openapi.json")
 	}))
 }
 

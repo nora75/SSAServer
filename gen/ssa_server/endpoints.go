@@ -94,7 +94,7 @@ func NewDeleteUserEndpoint(s Service) goa.Endpoint {
 func NewSaveDataEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*SaveDataPayload)
-		return nil, s.SaveData(ctx, p)
+		return s.SaveData(ctx, p)
 	}
 }
 

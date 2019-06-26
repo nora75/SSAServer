@@ -128,17 +128,17 @@ type SsaResultResponseDataListOriginCollection []*SsaResultResponseDataListOrigi
 // service "Pick_up_data" endpoint HTTP response body.
 type PickUpDataResponseBodyDataExtendedWithImage struct {
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data interface{} `form:"Data" json:"Data" xml:"Data"`
 	// Data's name
-	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
+	DataType int `form:"data_type" json:"data_type" xml:"data_type"`
 	// Data name
-	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
+	DataName string `form:"data_name" json:"data_name" xml:"data_name"`
 	// Data title
-	Title string `form:"title" json:"title" xml:"title"`
+	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
 	// Image data
 	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 	// image's name
-	ImageName string `form:"image_name" json:"image_name" xml:"image_name"`
+	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
 }
 
 // RegisterInvalidGroupIDResponseBody is the type of the "SSAServer" service
@@ -479,16 +479,16 @@ func NewSsaResultResponseDataListOriginCollection(res ssaserverviews.SsaResultCo
 // from the result of the "Pick_up_data" endpoint of the "SSAServer" service.
 func NewPickUpDataResponseBodyDataExtendedWithImage(res *ssaserverviews.SsaResultView) *PickUpDataResponseBodyDataExtendedWithImage {
 	body := &PickUpDataResponseBodyDataExtendedWithImage{
-		DataName: res.DataName,
-		Data:     res.Data,
-		Image:    res.Image,
-		DataType: res.DataType,
+		Data:      res.Data,
+		Image:     res.Image,
+		Title:     res.Title,
+		ImageName: res.ImageName,
 	}
-	if res.Title != nil {
-		body.Title = *res.Title
+	if res.DataName != nil {
+		body.DataName = *res.DataName
 	}
-	if res.ImageName != nil {
-		body.ImageName = *res.ImageName
+	if res.DataType != nil {
+		body.DataType = *res.DataType
 	}
 	return body
 }

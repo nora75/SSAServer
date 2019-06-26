@@ -30,8 +30,8 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	res.UserID = &counter
 	counter++
 	if p.GroupID == nil {
-		var group_name = "test-group"
-		res.GroupID = &group_name
+		var groupName = "test-group"
+		res.GroupID = &groupName
 	} else {
 		res.GroupID = p.GroupID
 	}
@@ -69,15 +69,17 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 }
 
 // データをサーバーへ保存する
-func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (err error) {
+func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	if 1 == *p.DataType {
 		mes = "日記"
-	} else {
+	} else if 2 == *p.DataType {
 		mes = "録音"
+	} else {
+		return false, fmt.Errorf("不正なdata_typeです。")
 	}
-	return fmt.Errorf("%s", mes)
+	return true, fmt.Errorf("%s", mes)
 }
 
 // データのリストを取得する

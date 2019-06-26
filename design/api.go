@@ -172,10 +172,11 @@ var _ = API("SSA", func() {
 	Description("SSAサービスのサーバーサイドプログラム")
 	Version("0.1")
 	Server("SSAServer", func() {
+		Description("ローカルホストでのテスト段階")
+		Services("SSAServer", "swagger")
 		Host("localhost", func() {
 			URI("http://localhost:8000/")
 		})
-		Services("SSAServer")
 	})
 })
 

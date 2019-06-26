@@ -135,6 +135,8 @@ paths:
       responses:
         "200":
           description: OK response.
+          schema:
+            type: boolean
         "400":
           description: Bad Request response.
           schema:
@@ -188,8 +190,20 @@ paths:
       - http
   /openapi.json:
     get:
-      summary: Download /gen/http/openapi.json
+      summary: Download gen/http/openapi.json
       operationId: SSAServer#/openapi.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+  /swagger/swagger.json:
+    get:
+      summary: Download gen/http/openapi.json
+      description: JSON document containing the API swagger definition
+      operationId: swagger#/swagger/swagger.json
       responses:
         "200":
           description: File downloaded
@@ -477,10 +491,10 @@ definitions:
     properties:
       Data:
         description: Data
-        example: Fugiat rerum eum.
+        example: Ipsa repudiandae voluptas labore voluptatem.
       Image:
         description: Image data
-        example: Quo quae.
+        example: Sint et et nam.
       data_name:
         type: string
         description: Data name
@@ -501,15 +515,16 @@ definitions:
     description: Pick_up_data_Response_Body result type (data_extended_with_image
       view) (default view)
     example:
-      Data: Voluptatem occaecati.
-      Image: Et iste quo deleniti.
+      Data: Non fugiat rerum.
+      Image: Velit quo quae et voluptatem occaecati quia.
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: huge
       title: hoge
     required:
-    - title
-    - image_name
+    - Data
+    - data_type
+    - data_name
   SSAServerPickUpDataRequestBody:
     title: SSAServerPickUpDataRequestBody
     type: object
@@ -771,10 +786,10 @@ definitions:
     properties:
       Data:
         description: Data
-        example: Adipisci quasi sit.
+        example: Quia expedita ut dolorem quia.
       Image:
         description: Image
-        example: Eaque laudantium aut eum eos harum ea.
+        example: Molestiae ut sint sunt deserunt quia.
       data_name:
         type: string
         description: Data name
@@ -798,8 +813,8 @@ definitions:
         example: 28532
         format: int64
     example:
-      Data: Sint ipsa repudiandae voluptas labore voluptatem.
-      Image: Sint et et nam.
+      Data: Adipisci quasi sit.
+      Image: Eaque laudantium aut eum eos harum ea.
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: Image_2017-05-25-26-32
@@ -817,12 +832,6 @@ definitions:
     description: Return_data_list_Response_Body is the result type for an array of
       SsaResultResponse (default view)
     example:
-    - mail: hoge@hoge.com
-      user_id: 234
-      user_name: 平野 竜也
-    - mail: hoge@hoge.com
-      user_id: 234
-      user_name: 平野 竜也
     - mail: hoge@hoge.com
       user_id: 234
       user_name: 平野 竜也

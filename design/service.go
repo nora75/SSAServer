@@ -63,7 +63,9 @@ var _ = Service("SSAServer", func() {
 			Required("mail", "password")
 		})
 
-		Result(Boolean)
+		Result(Boolean, func(){
+			Example(true)
+		})
 
 		HTTP(func() {
 			POST("/Login")
@@ -89,7 +91,9 @@ var _ = Service("SSAServer", func() {
 			Required("user_id", "password","group_id")
 		})
 
-		Result(Boolean)
+		Result(Boolean, func(){
+			Example(true)
+		})
 
 		HTTP(func(){
 			POST("/users/{user_id}")
@@ -111,7 +115,9 @@ var _ = Service("SSAServer", func() {
 			Required("user_id", "password")
 		})
 
-		Result(Boolean)
+		Result(Boolean, func(){
+			Example(true)
+		})
 
 		HTTP(func(){
 			DELETE("/users/{user_id}")
@@ -150,7 +156,9 @@ var _ = Service("SSAServer", func() {
 			Required("group_id", "user_id", "data_name", "Data")
 		})
 
-		Result(Boolean)
+		Result(Boolean, func(){
+			Example(true)
+		})
 
 		HTTP(func() {
 			POST("/group/{group_id}")
@@ -220,5 +228,5 @@ var _ = Service("SSAServer", func() {
 
 	})
 
-	Files("/openapi.json", "/gen/http/openapi.json")
+	Files("/openapi.json", "gen/http/openapi.json")
 })

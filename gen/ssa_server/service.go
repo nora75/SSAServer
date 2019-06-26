@@ -23,7 +23,7 @@ type Service interface {
 	// 既存ユーザーの消去
 	DeleteUser(context.Context, *DeleteUserPayload) (res bool, err error)
 	// データをサーバーへ保存する
-	SaveData(context.Context, *SaveDataPayload) (err error)
+	SaveData(context.Context, *SaveDataPayload) (res bool, err error)
 	// データのリストを取得する
 	// The "view" return value must have one of the following views
 	//	- "default"

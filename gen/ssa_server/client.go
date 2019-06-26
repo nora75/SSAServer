@@ -78,9 +78,13 @@ func (c *Client) DeleteUser(ctx context.Context, p *DeleteUserPayload) (res bool
 }
 
 // SaveData calls the "Save_data" endpoint of the "SSAServer" service.
-func (c *Client) SaveData(ctx context.Context, p *SaveDataPayload) (err error) {
-	_, err = c.SaveDataEndpoint(ctx, p)
-	return
+func (c *Client) SaveData(ctx context.Context, p *SaveDataPayload) (res bool, err error) {
+	var ires interface{}
+	ires, err = c.SaveDataEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(bool), nil
 }
 
 // ReturnDataList calls the "Return_data_list" endpoint of the "SSAServer"
