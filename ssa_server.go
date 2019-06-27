@@ -8,7 +8,10 @@ import (
 	"fmt"
 )
 
-var counter = 0
+// Counter is counter of registration
+var Counter = 0
+// GroupName is const of sample group name using return
+const GroupName = "test-group"
 
 // SSAServer service example implementation.
 // The example methods log the requests and return zero values.
@@ -30,7 +33,6 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	res.UserID = &counter
 	counter++
 	if p.GroupID == nil {
-		var groupName = "test-group"
 		res.GroupID = &groupName
 	} else {
 		res.GroupID = p.GroupID
