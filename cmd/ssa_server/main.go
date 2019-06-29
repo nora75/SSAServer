@@ -70,7 +70,7 @@ func main() {
 	switch *hostF {
 	case "localhost":
 		{
-			addr := "http://localhost:8000/"
+			addr := "https://localhost:8000/"
 			u, err := url.Parse(addr)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "invalid URL %#v: %s", addr, err)
@@ -86,7 +86,7 @@ func main() {
 				h := strings.Split(u.Host, ":")[0]
 				u.Host = h + ":" + *httpPortF
 			} else if u.Port() == "" {
-				u.Host += ":80"
+				u.Host += ":443"
 			}
 			handleHTTPServer(ctx, u, sSAServerEndpoints, &wg, errc, logger, *dbgF)
 		}

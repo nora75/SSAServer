@@ -175,7 +175,8 @@ var _ = API("SSA", func() {
 		Description("ローカルホストでのテスト段階")
 		Services("SSAServer", "swagger")
 		Host("localhost", func() {
-			URI("http://localhost:8000/")
+			// URI("http://localhost:8000/")
+			URI("https://localhost:8000/")
 		})
 	})
 })

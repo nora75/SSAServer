@@ -122,7 +122,7 @@ func BuildSaveDataPayload(sSAServerSaveDataBody string, sSAServerSaveDataGroupID
 	{
 		err = json.Unmarshal([]byte(sSAServerSaveDataBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"Data\": \"Qui ut.\",\n      \"Image\": \"Aliquam alias harum nisi.\",\n      \"data_name\": \"Diary_312_2019-03-02_12-07-35\",\n      \"data_type\": 1,\n      \"image_name\": \"Image_2017-05-25-26-32\",\n      \"title\": \"たいとる\",\n      \"user_id\": 28532\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"Data\": \"Rerum reprehenderit qui molestiae.\",\n      \"Image\": \"Quis optio rerum corrupti mollitia ut dolore.\",\n      \"data_name\": \"Diary_312_2019-03-02_12-07-35\",\n      \"data_type\": 1,\n      \"image_name\": \"Image_2017-05-25-26-32\",\n      \"title\": \"たいとる\",\n      \"user_id\": 28532\n   }'")
 		}
 		if body.Data == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Data", "body"))

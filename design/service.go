@@ -63,9 +63,7 @@ var _ = Service("SSAServer", func() {
 			Required("mail", "password")
 		})
 
-		Result(HashOf(Boolean), func(){
-			Example(map[string]bool{"fault": false})
-		})
+		Result(Boolean)
 
 		HTTP(func() {
 			POST("/Login")
@@ -91,9 +89,7 @@ var _ = Service("SSAServer", func() {
 			Required("user_id", "password","group_id")
 		})
 
-		Result(HashOf(Boolean), func(){
-			Example(map[string]bool{"fault": false})
-		})
+		Result(Boolean)
 
 		HTTP(func(){
 			POST("/users/{user_id}")
@@ -115,9 +111,7 @@ var _ = Service("SSAServer", func() {
 			Required("user_id", "password")
 		})
 
-		Result(HashOf(Boolean), func(){
-			Example(map[string]bool{"fault": false})
-		})
+		Result(Boolean)
 
 		HTTP(func(){
 			DELETE("/users/{user_id}")
@@ -156,9 +150,7 @@ var _ = Service("SSAServer", func() {
 			Required("group_id", "user_id", "data_name", "Data")
 		})
 
-		Result(HashOf(Boolean), func(){
-			Example(map[string]bool{"fault": false})
-		})
+		Result(Boolean)
 
 		HTTP(func() {
 			POST("/group/{group_id}")

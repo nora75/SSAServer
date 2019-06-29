@@ -43,7 +43,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerLogin_Invalid_Group_ID_Response_Body'
       schemes:
-      - http
+      - https
   /Registration:
     post:
       tags:
@@ -75,7 +75,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerRegister_Invalid_Group_ID_Response_Body'
       schemes:
-      - http
+      - https
   /group/{group_id}:
     get:
       tags:
@@ -110,7 +110,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerReturn_data_list_Invalid_Group_ID_Response_Body'
       schemes:
-      - http
+      - https
     post:
       tags:
       - SSAServer
@@ -146,7 +146,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerSave_data_Invalid_Group_ID_Response_Body'
       schemes:
-      - http
+      - https
   /group/{group_id}/{data_type}:
     get:
       tags:
@@ -187,7 +187,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerPick_up_data_Invalid_Group_ID_Response_Body'
       schemes:
-      - http
+      - https
   /openapi.json:
     get:
       summary: Download gen/http/openapi.json
@@ -198,7 +198,7 @@ paths:
           schema:
             type: file
       schemes:
-      - http
+      - https
   /swagger/swagger.json:
     get:
       summary: Download gen/http/openapi.json
@@ -210,7 +210,7 @@ paths:
           schema:
             type: file
       schemes:
-      - http
+      - https
   /users/{user_id}:
     post:
       tags:
@@ -242,7 +242,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerChange_group_Invalid_Request_Response_Body'
       schemes:
-      - http
+      - https
     delete:
       tags:
       - SSAServer
@@ -272,7 +272,7 @@ paths:
           schema:
             $ref: '#/definitions/SSAServerDelete_user_Invalid_Request_Response_Body'
       schemes:
-      - http
+      - https
 definitions:
   SSAServerChange_group_Invalid_Group_ID_Response_Body:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
@@ -491,10 +491,10 @@ definitions:
     properties:
       Data:
         description: Data
-        example: Ipsa repudiandae voluptas labore voluptatem.
+        example: Fugiat rerum eum.
       Image:
         description: Image data
-        example: Sint et et nam.
+        example: Quo quae.
       data_name:
         type: string
         description: Data name
@@ -515,8 +515,8 @@ definitions:
     description: Pick_up_data_Response_Body result type (data_extended_with_image
       view) (default view)
     example:
-      Data: Non fugiat rerum.
-      Image: Velit quo quae et voluptatem occaecati quia.
+      Data: Voluptatem occaecati.
+      Image: Et iste quo deleniti.
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: huge
@@ -786,10 +786,10 @@ definitions:
     properties:
       Data:
         description: Data
-        example: Quia expedita ut dolorem quia.
+        example: Adipisci quasi sit.
       Image:
         description: Image
-        example: Molestiae ut sint sunt deserunt quia.
+        example: Eaque laudantium aut eum eos harum ea.
       data_name:
         type: string
         description: Data name
@@ -813,8 +813,8 @@ definitions:
         example: 28532
         format: int64
     example:
-      Data: Adipisci quasi sit.
-      Image: Eaque laudantium aut eum eos harum ea.
+      Data: Sint ipsa repudiandae voluptas labore voluptatem.
+      Image: Sint et et nam.
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: Image_2017-05-25-26-32
@@ -832,6 +832,12 @@ definitions:
     description: Return_data_list_Response_Body is the result type for an array of
       SsaResultResponse (default view)
     example:
+    - mail: hoge@hoge.com
+      user_id: 234
+      user_name: 平野 竜也
+    - mail: hoge@hoge.com
+      user_id: 234
+      user_name: 平野 竜也
     - mail: hoge@hoge.com
       user_id: 234
       user_name: 平野 竜也
