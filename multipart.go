@@ -1,8 +1,14 @@
 package ssa
 
 import (
-	ssaserver "SSAServer/gen/ssa_server"
 	"mime/multipart"
+	"io"
+	"os"
+	"fmt"
+
+	// client "SSAServer/gen/http/ssa_server/client"
+	// server "SSAServer/gen/http/ssa_server/server"
+	ssaserver "SSAServer/gen/ssa_server"
 )
 
 // SSAServerSaveDataDecoderFunc implements the multipart decoder for service
@@ -10,6 +16,25 @@ import (
 // after encoding.
 func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPayload) error {
 	// Add multipart request decoder logic here
+	file, err := os.Create("testhoge")
+	if err != nil {
+		return fmt.Errorf("failed to load part: %s", err)
+	}
+	fmt.Println("before loop")
+	for {
+		fmt.Println("start")
+		part, err := mr.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to load part: %s", err)
+		}
+		io.Copy(file, part)
+	}
+	fmt.Println("after loop")
+	defer file.Close()
+	fmt.Println("after loop")
 	return nil
 }
 

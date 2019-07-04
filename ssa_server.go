@@ -6,6 +6,7 @@ import (
 	"log"
 	"regexp"
 	"fmt"
+	"strings"
 )
 
 // Counter is counter of registration
@@ -32,7 +33,7 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	res.Mail = &p.Mail
 	res.UserID = &Counter
 	Counter++
-	if p.GroupID == nil {
+	if p.GroupID == nil || strings.EqualFold(*p.GroupID, ""){
 		res.GroupID = &GroupName
 	} else {
 		res.GroupID = p.GroupID
@@ -72,6 +73,7 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 
 // データをサーバーへ保存する
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
+	fmt.Println("before savedata")
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	if 1 == *p.DataType {
