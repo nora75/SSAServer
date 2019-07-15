@@ -31,7 +31,14 @@ func main() {
 		logger *log.Logger
 	)
 	{
-		logger = log.New(os.Stderr, "[ssa] ", log.Ltime)
+		logger = log.New(&lumberjack.Logger{
+			Filename: "/home/NORA/log/ssa.log",
+			MaxSize: 500,
+			MaxBackups: 3,
+			MaxAge: 120,
+			Compress: true,
+		},
+		"[ssa] ", log.Ltime)
 	}
 
 	// Initialize the services.
