@@ -63,7 +63,7 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 // dir 移動 recursive
 func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
-    r := regexp.MustCompile(`group`)
+	r := regexp.MustCompile(`group`)
 	if r.MatchString(p.GroupID) {
 		return true , nil
 	}
@@ -75,7 +75,7 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 // dbとの統合
 func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Delete_user")
-    r := regexp.MustCompile(`pass`)
+	r := regexp.MustCompile(`pass`)
 	if r.MatchString(p.Password) {
 		return false, fmt.Errorf("パスワードが不正です。")
 	}
@@ -90,7 +90,7 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 // データをファイルと分ける
 // ファイルを複数分ける
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
-	fmt.Println("before savedata")
+	s.logger.Print("before savedata")
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	if 1 == *p.DataType {

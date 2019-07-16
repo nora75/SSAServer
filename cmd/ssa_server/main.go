@@ -1,6 +1,7 @@
 package main
 
 import (
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 	ssa "SSAServer"
 	ssaserver "SSAServer/gen/ssa_server"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -30,6 +31,7 @@ func main() {
 	// Setup logger. Replace logger with your own log package of choice.
 	var (
 		logger *log.Logger
+
 	)
 	{
 		logger = log.New(&lumberjack.Logger{
@@ -78,7 +80,7 @@ func main() {
 	switch *hostF {
 	case "localhost":
 		{
-			addr := "https://localhost:8000/"
+			addr := "http://10.138.0.2:8000/"
 			u, err := url.Parse(addr)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "invalid URL %#v: %s", addr, err)
