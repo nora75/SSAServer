@@ -3,6 +3,7 @@ package main
 import (
 	ssa "SSAServer"
 	ssaserver "SSAServer/gen/ssa_server"
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 	"context"
 	"flag"
 	"fmt"

@@ -147,7 +147,7 @@ var _ = Service("SSAServer", func() {
 			Attribute("Image", Any, "Image", func(){
 				Meta("swagger:example", "false")
 			})
-			Required("group_id", "user_id", "data_name", "Data")
+			Required("group_id", "user_id", "data_name", "data_type", "Data")
 		})
 
 		Result(Boolean)

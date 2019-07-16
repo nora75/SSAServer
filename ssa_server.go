@@ -26,6 +26,10 @@ func NewSSAServer(logger *log.Logger) ssaserver.Service {
 }
 
 // SSAへの新規登録
+// TODO
+// random generate group id
+// if not exists group id return false(error)
+// dirの作成
 func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPayload) (res *ssaserver.SsaResult, err error) {
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Register")
@@ -42,6 +46,8 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 }
 
 // SSAへのログイン
+// TODO
+// dbとの統合
 func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Login")
     r := regexp.MustCompile(`pass`)
@@ -52,6 +58,9 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 }
 
 // グループIDを変更する
+// TODO
+// dbとの統合
+// dir 移動 recursive
 func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
     r := regexp.MustCompile(`group`)
@@ -62,6 +71,8 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 }
 
 // 既存ユーザーの消去
+// TODO
+// dbとの統合
 func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Delete_user")
     r := regexp.MustCompile(`pass`)
@@ -72,6 +83,12 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 }
 
 // データをサーバーへ保存する
+// TODO
+// dbとの統合
+// mulipart
+// fileの移動
+// データをファイルと分ける
+// ファイルを複数分ける
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
 	fmt.Println("before savedata")
 	s.logger.Print("sSAServer.Save_data")
@@ -87,6 +104,9 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 }
 
 // データのリストを取得する
+// TODO
+// dbとの統合
+// リストどうやって送信するの?
 func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnDataListPayload) (res ssaserver.SsaResultCollection, view string, err error) {
 	view = "data_list_origin"
 	s.logger.Print("sSAServer.Return_data_list")
@@ -94,6 +114,10 @@ func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnD
 }
 
 // データをサーバーから取得する
+// TODO
+// dbとの統合
+// データの実際の送信
+// データのread
 func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataPayload) (res *ssaserver.SsaResult, err error) {
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Pick_up_data")
