@@ -37,11 +37,11 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerLogin_Invalid_Request_Response_Body'
+            $ref: '#/definitions/SSAServerLoginInvalidRequestResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/SSAServerLogin_Invalid_Group_ID_Response_Body'
+            $ref: '#/definitions/SSAServerLoginInvalidGroupIDResponseBody'
       schemes:
       - https
   /Registration:
@@ -69,11 +69,11 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerRegister_Invalid_Request_Response_Body'
+            $ref: '#/definitions/SSAServerRegisterInvalidRequestResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/SSAServerRegister_Invalid_Group_ID_Response_Body'
+            $ref: '#/definitions/SSAServerRegisterInvalidGroupIDResponseBody'
       schemes:
       - https
   /group/{group_id}:
@@ -104,11 +104,11 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerReturn_data_list_Invalid_Request_Response_Body'
+            $ref: '#/definitions/SSAServerReturnDataListInvalidRequestResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/SSAServerReturn_data_list_Invalid_Group_ID_Response_Body'
+            $ref: '#/definitions/SSAServerReturnDataListInvalidGroupIDResponseBody'
       schemes:
       - https
     post:
@@ -131,6 +131,7 @@ paths:
           required:
           - user_id
           - data_name
+          - data_type
           - Data
       responses:
         "200":
@@ -140,11 +141,11 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerSave_data_Invalid_Data_Response_Body'
+            $ref: '#/definitions/SSAServerSaveDataInvalidDataResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/SSAServerSave_data_Invalid_Group_ID_Response_Body'
+            $ref: '#/definitions/SSAServerSaveDataInvalidGroupIDResponseBody'
       schemes:
       - https
   /group/{group_id}/{data_type}:
@@ -177,15 +178,15 @@ paths:
         "200":
           description: OK response.
           schema:
-            $ref: '#/definitions/SSAServerPick_up_data_Response_BodyData_extended_with_image'
+            $ref: '#/definitions/SSAServerPickUpDataResponseBodyDataExtendedWithImage'
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerPick_up_data_Invalid_data_name_Response_Body'
+            $ref: '#/definitions/SSAServerPickUpDataInvalidDataNameResponseBody'
         "404":
           description: Not Found response.
           schema:
-            $ref: '#/definitions/SSAServerPick_up_data_Invalid_Group_ID_Response_Body'
+            $ref: '#/definitions/SSAServerPickUpDataInvalidGroupIDResponseBody'
       schemes:
       - https
   /openapi.json:
@@ -240,7 +241,7 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerChange_group_Invalid_Request_Response_Body'
+            $ref: '#/definitions/SSAServerChangeGroupInvalidRequestResponseBody'
       schemes:
       - https
     delete:
@@ -270,11 +271,11 @@ paths:
         "400":
           description: Bad Request response.
           schema:
-            $ref: '#/definitions/SSAServerDelete_user_Invalid_Request_Response_Body'
+            $ref: '#/definitions/SSAServerDeleteUserInvalidRequestResponseBody'
       schemes:
       - https
 definitions:
-  SSAServerChange_group_Invalid_Group_ID_Response_Body:
+  SSAServerChangeGroupInvalidGroupIDResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -295,7 +296,7 @@ definitions:
     required:
     - fault
     - message
-  SSAServerChange_group_Invalid_Request_Response_Body:
+  SSAServerChangeGroupInvalidRequestResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -333,7 +334,7 @@ definitions:
     required:
     - password
     - group_id
-  SSAServerDelete_user_Invalid_Request_Response_Body:
+  SSAServerDeleteUserInvalidRequestResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -365,7 +366,7 @@ definitions:
       password: pass12345
     required:
     - password
-  SSAServerLogin_Invalid_Group_ID_Response_Body:
+  SSAServerLoginInvalidGroupIDResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -385,7 +386,7 @@ definitions:
     required:
     - fault
     - message
-  SSAServerLogin_Invalid_Request_Response_Body:
+  SSAServerLoginInvalidRequestResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -423,48 +424,7 @@ definitions:
     required:
     - mail
     - password
-  SSAServerPick_up_data_Invalid_Group_ID_Response_Body:
-    title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
-    type: object
-    properties:
-      fault:
-        type: boolean
-        description: Return false when Error occur
-        default: true
-        example: true
-      message:
-        type: string
-        description: Error returned.
-        example: 不正なリクエストです
-    description: Pick_up_data_Invalid_Group_ID_Response_Body result type (default
-      view)
-    example:
-      fault: true
-      message: 不正なリクエストです
-    required:
-    - fault
-    - message
-  SSAServerPick_up_data_Invalid_Request_Response_Body:
-    title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
-    type: object
-    properties:
-      fault:
-        type: boolean
-        description: Return false when Error occur
-        default: true
-        example: true
-      message:
-        type: string
-        description: Error returned.
-        example: 不正なリクエストです
-    description: Pick_up_data_Invalid_Request_Response_Body result type (default view)
-    example:
-      fault: true
-      message: 不正なリクエストです
-    required:
-    - fault
-    - message
-  SSAServerPick_up_data_Invalid_data_name_Response_Body:
+  SSAServerPickUpDataInvalidDataNameResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -485,7 +445,67 @@ definitions:
     required:
     - fault
     - message
-  SSAServerPick_up_data_Response_BodyData_extended_with_image:
+  SSAServerPickUpDataInvalidGroupIDResponseBody:
+    title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
+    type: object
+    properties:
+      fault:
+        type: boolean
+        description: Return false when Error occur
+        default: true
+        example: true
+      message:
+        type: string
+        description: Error returned.
+        example: 不正なリクエストです
+    description: Pick_up_data_Invalid_Group_ID_Response_Body result type (default
+      view)
+    example:
+      fault: true
+      message: 不正なリクエストです
+    required:
+    - fault
+    - message
+  SSAServerPickUpDataInvalidRequestResponseBody:
+    title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
+    type: object
+    properties:
+      fault:
+        type: boolean
+        description: Return false when Error occur
+        default: true
+        example: true
+      message:
+        type: string
+        description: Error returned.
+        example: 不正なリクエストです
+    description: Pick_up_data_Invalid_Request_Response_Body result type (default view)
+    example:
+      fault: true
+      message: 不正なリクエストです
+    required:
+    - fault
+    - message
+  SSAServerPickUpDataRequestBody:
+    title: SSAServerPickUpDataRequestBody
+    type: object
+    properties:
+      data_name:
+        type: string
+        description: Data name
+        example: Record_12_2019-06-02_12-07-35
+      user_id:
+        type: integer
+        description: User ID
+        example: 65
+        format: int64
+    example:
+      data_name: Record_12_2019-06-02_12-07-35
+      user_id: 65
+    required:
+    - user_id
+    - data_name
+  SSAServerPickUpDataResponseBodyDataExtendedWithImage:
     title: 'Mediatype identifier: application/vnd.ssa.result; view=data_extended_with_image'
     type: object
     properties:
@@ -525,26 +545,7 @@ definitions:
     - Data
     - data_type
     - data_name
-  SSAServerPickUpDataRequestBody:
-    title: SSAServerPickUpDataRequestBody
-    type: object
-    properties:
-      data_name:
-        type: string
-        description: Data name
-        example: Record_12_2019-06-02_12-07-35
-      user_id:
-        type: integer
-        description: User ID
-        example: 65
-        format: int64
-    example:
-      data_name: Record_12_2019-06-02_12-07-35
-      user_id: 65
-    required:
-    - user_id
-    - data_name
-  SSAServerRegister_Invalid_Group_ID_Response_Body:
+  SSAServerRegisterInvalidGroupIDResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -564,7 +565,7 @@ definitions:
     required:
     - fault
     - message
-  SSAServerRegister_Invalid_Request_Response_Body:
+  SSAServerRegisterInvalidRequestResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -578,27 +579,6 @@ definitions:
         description: Error returned.
         example: 不正なリクエストです
     description: Register_Invalid_Request_Response_Body result type (default view)
-    example:
-      fault: true
-      message: 不正なリクエストです
-    required:
-    - fault
-    - message
-  SSAServerRegister_The_user_already_exists_Response_Body:
-    title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
-    type: object
-    properties:
-      fault:
-        type: boolean
-        description: Return false when Error occur
-        default: true
-        example: true
-      message:
-        type: string
-        description: Error returned.
-        example: 不正なリクエストです
-    description: Register_The_user_already_exists_Response_Body result type (default
-      view)
     example:
       fault: true
       message: 不正なリクエストです
@@ -665,7 +645,28 @@ definitions:
     required:
     - user_id
     - mail
-  SSAServerReturn_data_list_Invalid_Group_ID_Response_Body:
+  SSAServerRegisterTheUserAlreadyExistsResponseBody:
+    title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
+    type: object
+    properties:
+      fault:
+        type: boolean
+        description: Return false when Error occur
+        default: true
+        example: true
+      message:
+        type: string
+        description: Error returned.
+        example: 不正なリクエストです
+    description: Register_The_user_already_exists_Response_Body result type (default
+      view)
+    example:
+      fault: true
+      message: 不正なリクエストです
+    required:
+    - fault
+    - message
+  SSAServerReturnDataListInvalidGroupIDResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -686,7 +687,7 @@ definitions:
     required:
     - fault
     - message
-  SSAServerReturn_data_list_Invalid_Request_Response_Body:
+  SSAServerReturnDataListInvalidRequestResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -720,7 +721,7 @@ definitions:
       user_id: 537829
     required:
     - user_id
-  SSAServerSave_data_Invalid_Data_Response_Body:
+  SSAServerSaveDataInvalidDataResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -740,7 +741,7 @@ definitions:
     required:
     - fault
     - message
-  SSAServerSave_data_Invalid_Group_ID_Response_Body:
+  SSAServerSaveDataInvalidGroupIDResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -760,7 +761,7 @@ definitions:
     required:
     - fault
     - message
-  SSAServerSave_data_Invalid_Request_Response_Body:
+  SSAServerSaveDataInvalidRequestResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
     type: object
     properties:
@@ -823,6 +824,7 @@ definitions:
     required:
     - user_id
     - data_name
+    - data_type
     - Data
   SSAServerSsaResultResponseCollection:
     title: 'Mediatype identifier: application/vnd.ssa.result; type=collection; view=default'

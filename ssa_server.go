@@ -93,12 +93,10 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	s.logger.Print("before savedata")
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
-	if 1 == *p.DataType {
-		mes = "日記"
-	} else if 2 == *p.DataType {
-		mes = "録音"
-	} else {
-		return false, fmt.Errorf("不正なdata_typeです。")
+	switch p.DataType {
+	case 1: mes = "日記"
+	case 2: mes = "録音"
+	default: return false, fmt.Errorf("不正なdata_typeです。")
 	}
 	return true, fmt.Errorf("%s", mes)
 }

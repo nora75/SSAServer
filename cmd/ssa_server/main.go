@@ -4,7 +4,6 @@ import (
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 	ssa "SSAServer"
 	ssaserver "SSAServer/gen/ssa_server"
-	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 	"context"
 	"flag"
 	"fmt"
@@ -12,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -34,8 +34,14 @@ func main() {
 
 	)
 	{
+		logpath, _ := os.Getwd()
+		if runtime.GOOS == "windows" {
+			logpath += "\\log\\ssa.log";
+		} else {
+			logpath += "/log/ssa.log";
+		}
 		logger = log.New(&lumberjack.Logger{
-			Filename: "/home/NORA/log/ssa.log",
+			Filename: logpath,
 			MaxSize: 500,
 			MaxBackups: 3,
 			MaxAge: 120,
@@ -80,7 +86,7 @@ func main() {
 	switch *hostF {
 	case "localhost":
 		{
-			addr := "http://10.138.0.2:8000/"
+			addr := "http://0.0.0.0:8000/"
 			u, err := url.Parse(addr)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "invalid URL %#v: %s", addr, err)
