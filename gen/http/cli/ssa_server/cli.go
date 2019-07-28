@@ -287,8 +287,8 @@ func sSAServerSaveDataUsage() {
 
 Example:
     `+os.Args[0]+` ssa-server save-data --body '{
-      "Data": "Rerum reprehenderit qui molestiae.",
-      "Image": "Quis optio rerum corrupti mollitia ut dolore.",
+      "Data": "UmVydW0gcmVwcmVoZW5kZXJpdCBxdWkgbW9sZXN0aWFlLg==",
+      "Image": "UXVpcyBvcHRpbyByZXJ1bSBjb3JydXB0aSBtb2xsaXRpYSB1dCBkb2xvcmUu",
       "data_name": "Diary_312_2019-03-02_12-07-35",
       "data_type": 1,
       "image_name": "Image_2017-05-25-26-32",

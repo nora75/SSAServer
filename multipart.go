@@ -2,11 +2,11 @@ package ssa
 
 import (
 	"fmt"
-	// "golang.org/x/crypto/bcrypt"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
-	"os"
 	"strconv"
+	// "strings"
 
 	ssaserver "SSAServer/gen/ssa_server"
 	// client "SSAServer/gen/http/ssa_server/client"
@@ -17,9 +17,8 @@ import (
 // "SSAServer" endpoint "Save_data". The decoder must populate the argument p
 // after encoding.
 func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPayload) error {
-	var ret *server.SaveDataRequestBody
+	ret := &server.SaveDataRequestBody{}
 	// Add multipart request decoder logic here
-	fmt.Println("bef for")
 	for {
 		part, err := mr.NextPart()
 		if err == io.EOF {
@@ -28,35 +27,31 @@ func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPa
 		if err != nil {
 			return fmt.Errorf("failed to load part: %s", err)
 		}
-		fmt.Println("after err nil")
-		if part.FormName() == "user_id" {
-			fmt.Println(part.Header.Get("user_id"))
-			// ret.UserID = part.Header.Get()
-		} else if part.FormName() == "data_name" {
-			fmt.Println(part.Header.Get("data_name"))
-			*ret.DataName = part.Header.Get("image_name")
-		} else if part.FormName() == "data_type" {
-			fmt.Println(part.Header.Get("data_type"))
-			*ret.DataType,_ = strconv.Atoi(part.Header.Get("data_type"))
-		} else if part.FormName() == "title" {
-			fmt.Println(part.Header.Get("title"))
-			*ret.Title = part.Header.Get("title")
-		} else if part.FormName() == "image_name" {
-			fmt.Println(part.Header.Get("image_name"))
-			*ret.ImageName = part.Header.Get("image_name")
-		} else if part.FormName() == "Data" {
-			dataFile, err := os.Create(*ret.DataName)
-			if err != nil {
-				return fmt.Errorf("failed to open file: %s", err)
-			}
-			io.Copy(dataFile, part)
-		} else if part.FormName() == "Image" {
-			imageFile, err := os.Create(*ret.ImageName)
-			if err != nil {
-				return fmt.Errorf("failed to open file: %s", err)
-			}
-			io.Copy(imageFile, part)
-		} else {
+		slurp, err := ioutil.ReadAll(part)
+		if err != nil {
+			return fmt.Errorf("failed to load part: %s", err)
+		}
+		switch part.FormName() {
+		case "user_id":
+			st, _ := strconv.Atoi(string(slurp))
+			ret.UserID = &st
+		case "data_name":
+			st := string(slurp)
+			ret.DataName = &st
+		case "data_type":
+			st, _ := strconv.Atoi(string(slurp))
+			ret.DataType = &st
+		case "title":
+			st := string(slurp)
+			ret.Title = &st
+		case "image_name":
+			st := string(slurp)
+			ret.ImageName = &st
+		case "Data":
+			ret.Data = slurp
+		case "Image":
+			ret.Image = slurp
+		default:
 			mes := part.FormName() + "' is invalid form data"
 			return fmt.Errorf(mes)
 		}
@@ -69,6 +64,34 @@ func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPa
 // "SSAServer" endpoint "Save_data".
 func SSAServerSaveDataEncoderFunc(mw *multipart.Writer, p *ssaserver.SaveDataPayload) error {
 	// Add multipart request encoder logic here
+	// dataFile, err := os.Create(p.DataName)
+	// defer func() {
+	// 	if err := dataFile.Close(); err != nil {
+	// 		panic(err)
+	// 	}
+	// }()
+	// if err != nil {
+	// 	return fmt.Errorf("failed to open file: %s", err)
+	// }
+	// _, err = io.Copy(dataFile, *p.Data)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to open file: %s", err)
+	// }
+	// if p.Image == nil || strings.EqualFold(*p.ImageName, ""){
+	// 	imageFile, err := os.Create(*p.ImageName)
+	// 	defer func() {
+	// 		if err := imageFile.Close(); err != nil {
+	// 			panic(err)
+	// 		}
+	// 	}()
+	// 	if err != nil {
+	// 		return fmt.Errorf("failed to open file: %s", err)
+	// 	}
+	// 	_, err = io.Copy(imageFile, *p.Image)
+	// 	if err != nil {
+	// 		return fmt.Errorf("failed to open file: %s", err)
+	// 	}
+	// }
 	return nil
 }
 

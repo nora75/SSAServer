@@ -62,13 +62,13 @@ type SaveDataRequestBody struct {
 	// Data name
 	DataType int `form:"data_type" json:"data_type" xml:"data_type"`
 	// Data
-	Data interface{} `form:"Data" json:"Data" xml:"Data"`
+	Data []byte `form:"Data" json:"Data" xml:"Data"`
 	// Diary title
 	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
 	// Image name
 	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
 	// Image
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
+	Image []byte `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 }
 
 // ReturnDataListRequestBody is the type of the "SSAServer" service

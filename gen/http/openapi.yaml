@@ -786,11 +786,72 @@ definitions:
     type: object
     properties:
       Data:
+        type: string
         description: Data
-        example: Adipisci quasi sit.
+        example:
+        - 65
+        - 100
+        - 105
+        - 112
+        - 105
+        - 115
+        - 99
+        - 105
+        - 32
+        - 113
+        - 117
+        - 97
+        - 115
+        - 105
+        - 32
+        - 115
+        - 105
+        - 116
+        - 46
+        format: byte
       Image:
+        type: string
         description: Image
-        example: Eaque laudantium aut eum eos harum ea.
+        example:
+        - 69
+        - 97
+        - 113
+        - 117
+        - 101
+        - 32
+        - 108
+        - 97
+        - 117
+        - 100
+        - 97
+        - 110
+        - 116
+        - 105
+        - 117
+        - 109
+        - 32
+        - 97
+        - 117
+        - 116
+        - 32
+        - 101
+        - 117
+        - 109
+        - 32
+        - 101
+        - 111
+        - 115
+        - 32
+        - 104
+        - 97
+        - 114
+        - 117
+        - 109
+        - 32
+        - 101
+        - 97
+        - 46
+        format: byte
       data_name:
         type: string
         description: Data name
@@ -814,8 +875,72 @@ definitions:
         example: 28532
         format: int64
     example:
-      Data: Sint ipsa repudiandae voluptas labore voluptatem.
-      Image: Sint et et nam.
+      Data:
+      - 83
+      - 105
+      - 110
+      - 116
+      - 32
+      - 105
+      - 112
+      - 115
+      - 97
+      - 32
+      - 114
+      - 101
+      - 112
+      - 117
+      - 100
+      - 105
+      - 97
+      - 110
+      - 100
+      - 97
+      - 101
+      - 32
+      - 118
+      - 111
+      - 108
+      - 117
+      - 112
+      - 116
+      - 97
+      - 115
+      - 32
+      - 108
+      - 97
+      - 98
+      - 111
+      - 114
+      - 101
+      - 32
+      - 118
+      - 111
+      - 108
+      - 117
+      - 112
+      - 116
+      - 97
+      - 116
+      - 101
+      - 109
+      - 46
+      Image:
+      - 83
+      - 105
+      - 110
+      - 116
+      - 32
+      - 101
+      - 116
+      - 32
+      - 101
+      - 116
+      - 32
+      - 110
+      - 97
+      - 109
+      - 46
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: Image_2017-05-25-26-32

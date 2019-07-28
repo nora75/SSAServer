@@ -135,7 +135,7 @@ var _ = Service("SSAServer", func() {
 			Attribute("data_type", Int, "Data name", func(){
 				Example(1)
 			})
-			Attribute("Data", Any, "Data", func(){
+			Attribute("Data", Bytes, "Data", func(){
 				Meta("swagger:example", "false")
 			})
 			Attribute("title", String, "Diary title", func(){
@@ -144,7 +144,7 @@ var _ = Service("SSAServer", func() {
 			Attribute("image_name", String, "Image name", func(){
 				Example("Image_2017-05-25-26-32")
 			})
-			Attribute("Image", Any, "Image", func(){
+			Attribute("Image", Bytes, "Image", func(){
 				Meta("swagger:example", "false")
 			})
 			Required("group_id", "user_id", "data_name", "data_type", "Data")

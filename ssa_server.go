@@ -6,13 +6,26 @@ import (
 	"log"
 	"regexp"
 	"fmt"
+	"math/rand"
+	"os"
 	"strings"
+	"time"
 )
 
 // Counter is counter of registration
 var Counter = 0
 // GroupName is const of sample group name using return
-var GroupName = "test-group"
+
+// for RandString
+var randSrc = rand.NewSource(time.Now().UnixNano())
+
+// for RandString
+const (
+    rs6Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    rs6LetterIdxBits = 6
+    rs6LetterIdxMask = 1<<rs6LetterIdxBits - 1
+    rs6LetterIdxMax = 63 / rs6LetterIdxBits
+)
 
 // SSAServer service example implementation.
 // The example methods log the requests and return zero values.
@@ -33,14 +46,15 @@ func NewSSAServer(logger *log.Logger) ssaserver.Service {
 func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPayload) (res *ssaserver.SsaResult, err error) {
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Register")
-	res.UserName = &p.UserName
-	res.Mail = &p.Mail
-	res.UserID = &Counter
+	*res.UserName = p.UserName
+	*res.Mail = p.Mail
+	*res.UserID = Counter
 	Counter++
+	GroupName := "group-" + RandString(12)
 	if p.GroupID == nil || strings.EqualFold(*p.GroupID, ""){
-		res.GroupID = &GroupName
+		*res.GroupID = GroupName
 	} else {
-		res.GroupID = p.GroupID
+		*res.GroupID = *p.GroupID
 	}
 	return res, nil
 }
@@ -90,7 +104,6 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 // データをファイルと分ける
 // ファイルを複数分ける
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
-	s.logger.Print("before savedata")
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	switch p.DataType {
@@ -98,7 +111,16 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	case 2: mes = "録音"
 	default: return false, fmt.Errorf("不正なdata_typeです。")
 	}
-	return true, fmt.Errorf("%s", mes)
+	err = SaveFile(p.Data,p.DataName)
+	if err !=  nil {
+		return false, err
+	}
+	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
+	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
+		err = SaveFile(p.Image,*p.ImageName)
+	}
+	s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
+	return true, nil
 }
 
 // データのリストを取得する
@@ -120,4 +142,41 @@ func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataP
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Pick_up_data")
 	return res, nil
+}
+
+// RandString Return Random n length String
+func RandString(n int) string {
+    b := make([]byte, n)
+    cache, remain := randSrc.Int63(), rs6LetterIdxMax
+    for i := n-1; i >= 0; {
+        if remain == 0 {
+            cache, remain = randSrc.Int63(), rs6LetterIdxMax
+        }
+        idx := int(cache & rs6LetterIdxMask)
+        if idx < len(rs6Letters) {
+            b[i] = rs6Letters[idx]
+            i--
+        }
+        cache >>= rs6LetterIdxBits
+        remain--
+    }
+    return string(b)
+}
+
+// SaveFile save file in server
+func SaveFile(data []byte, name string) error {
+	f, err := os.Create(name)
+	defer func() {
+		if err := f.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	if err != nil {
+		return fmt.Errorf("failed to open file: %s", err)
+	}
+	_, err = f.Write(data)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %s", err)
+	}
+	return nil
 }

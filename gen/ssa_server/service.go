@@ -127,13 +127,13 @@ type SaveDataPayload struct {
 	// Data name
 	DataType int
 	// Data
-	Data interface{}
+	Data []byte
 	// Diary title
 	Title *string
 	// Image name
 	ImageName *string
 	// Image
-	Image interface{}
+	Image []byte
 }
 
 // ReturnDataListPayload is the payload type of the SSAServer service
