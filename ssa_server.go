@@ -8,13 +8,20 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"runtime"
 	"strings"
+	"strconv"
 	"time"
 )
 
 // Counter is counter of registration
 var Counter = 0
-// GroupName is const of sample group name using return
+
+// contextKey define tokenContextKey's type
+type contextKey string
+
+// tokenContextKey define key type get group name in SaveData
+const tokenContextKey contextKey = "net.TCPAddr"
 
 // for RandString
 var randSrc = rand.NewSource(time.Now().UnixNano())
@@ -111,13 +118,23 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	case 2: mes = "録音"
 	default: return false, fmt.Errorf("不正なdata_typeです。")
 	}
-	err = SaveFile(p.Data,p.DataName)
+	path := GetSavePath(p.GroupID, p.UserID)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err := os.MkdirAll(path, 0700)
+		if err !=  nil {
+			return false, err
+		}
+	}
+	err = SaveFile(p.Data, path, p.DataName)
 	if err !=  nil {
 		return false, err
 	}
 	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
 	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
-		err = SaveFile(p.Image,*p.ImageName)
+		err = SaveFile(p.Image, path, *p.ImageName)
+	}
+	if err !=  nil {
+		return false, err
 	}
 	s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	return true, nil
@@ -164,7 +181,8 @@ func RandString(n int) string {
 }
 
 // SaveFile save file in server
-func SaveFile(data []byte, name string) error {
+func SaveFile(data []byte,path string, name string) error {
+	name = path + Getslash() + name
 	f, err := os.Create(name)
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -179,4 +197,23 @@ func SaveFile(data []byte, name string) error {
 		return fmt.Errorf("failed to open file: %s", err)
 	}
 	return nil
+}
+
+
+// GetSavePath return current dir path
+func GetSavePath(gr string, id int) (path string){
+	path, _ = os.Getwd()
+	slash := Getslash()
+	path = path + slash + gr + slash + strconv.Itoa(id)
+	return path
+}
+
+// Getslash return backslash or slash on server's environment
+func Getslash() (slash string) {
+	if runtime.GOOS == "windows" {
+		slash = "\\\\"
+	} else {
+		slash = "/"
+	}
+	return slash
 }
