@@ -53,15 +53,15 @@ func NewSSAServer(logger *log.Logger) ssaserver.Service {
 func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPayload) (res *ssaserver.SsaResult, err error) {
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Register")
-	*res.UserName = p.UserName
-	*res.Mail = p.Mail
-	*res.UserID = Counter
+	res.UserName = &p.UserName
+	res.Mail = &p.Mail
+	res.UserID = &Counter
 	Counter++
 	GroupName := "group-" + RandString(12)
 	if p.GroupID == nil || strings.EqualFold(*p.GroupID, ""){
-		*res.GroupID = GroupName
+		res.GroupID = &GroupName
 	} else {
-		*res.GroupID = *p.GroupID
+		res.GroupID = p.GroupID
 	}
 	return res, nil
 }
