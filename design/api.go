@@ -58,8 +58,8 @@ var MyResultType = ResultType("application/vnd.ssa.result", func(){
 				Value("Diary_312_2019-03-02_12-07-35")
 			})
 		})
-		Attribute("Data", Any, "Data")
-		Attribute("Image", Any, "Image data")
+		Attribute("Data", Bytes, "Data")
+		Attribute("Image", Bytes, "Image data")
 		Attribute("data_type", Int, "Data's name", func(){
 			Example("The record", func(){
 				Description("The data_type 0(record)")
@@ -135,9 +135,11 @@ var MyResultType = ResultType("application/vnd.ssa.result", func(){
 		View("data_list_origin", func() {
 			Attribute("data_type")
 			Attribute("data_name")
+			Attribute("image_name")
 			Attribute("title")
 			Attribute("date_time")
 			Attribute("user_name")
+			Attribute("user_id")
 		})
 
 	})

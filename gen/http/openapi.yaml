@@ -510,11 +510,41 @@ definitions:
     type: object
     properties:
       Data:
+        type: string
         description: Data
-        example: Fugiat rerum eum.
+        example:
+        - 70
+        - 117
+        - 103
+        - 105
+        - 97
+        - 116
+        - 32
+        - 114
+        - 101
+        - 114
+        - 117
+        - 109
+        - 32
+        - 101
+        - 117
+        - 109
+        - 46
+        format: byte
       Image:
+        type: string
         description: Image data
-        example: Quo quae.
+        example:
+        - 81
+        - 117
+        - 111
+        - 32
+        - 113
+        - 117
+        - 97
+        - 101
+        - 46
+        format: byte
       data_name:
         type: string
         description: Data name
@@ -535,8 +565,50 @@ definitions:
     description: Pick_up_data_Response_Body result type (data_extended_with_image
       view) (default view)
     example:
-      Data: Voluptatem occaecati.
-      Image: Et iste quo deleniti.
+      Data:
+      - 86
+      - 111
+      - 108
+      - 117
+      - 112
+      - 116
+      - 97
+      - 116
+      - 101
+      - 109
+      - 32
+      - 111
+      - 99
+      - 99
+      - 97
+      - 101
+      - 99
+      - 97
+      - 116
+      - 105
+      - 46
+      Image:
+      - 69
+      - 116
+      - 32
+      - 105
+      - 115
+      - 116
+      - 101
+      - 32
+      - 113
+      - 117
+      - 111
+      - 32
+      - 100
+      - 101
+      - 108
+      - 101
+      - 110
+      - 105
+      - 116
+      - 105
+      - 46
       data_name: Diary_312_2019-03-02_12-07-35
       data_type: 1
       image_name: huge

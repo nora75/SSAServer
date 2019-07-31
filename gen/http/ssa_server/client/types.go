@@ -103,9 +103,9 @@ type RegisterResponseBody struct {
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data []byte `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
 	// Image data
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
+	Image []byte `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 	// Data's name
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data title
@@ -136,9 +136,9 @@ type PickUpDataResponseBody struct {
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data []byte `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
 	// Image data
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
+	Image []byte `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 	// Data's name
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data title
@@ -311,9 +311,9 @@ type SsaResultResponse struct {
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data []byte `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
 	// Image data
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
+	Image []byte `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 	// Data's name
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data title

@@ -128,7 +128,7 @@ type SsaResultResponseDataListOriginCollection []*SsaResultResponseDataListOrigi
 // service "Pick_up_data" endpoint HTTP response body.
 type PickUpDataResponseBodyDataExtendedWithImage struct {
 	// Data
-	Data interface{} `form:"Data" json:"Data" xml:"Data"`
+	Data []byte `form:"Data" json:"Data" xml:"Data"`
 	// Data's name
 	DataType int `form:"data_type" json:"data_type" xml:"data_type"`
 	// Data name
@@ -136,7 +136,7 @@ type PickUpDataResponseBodyDataExtendedWithImage struct {
 	// Data title
 	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
 	// Image data
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
+	Image []byte `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 	// image's name
 	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
 }
@@ -313,7 +313,7 @@ type SsaResultResponseExtended struct {
 // SsaResultResponseData is used to define fields on response body types.
 type SsaResultResponseData struct {
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data []byte `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
 	// Data's name
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data name
@@ -324,7 +324,7 @@ type SsaResultResponseData struct {
 // types.
 type SsaResultResponseDataExtended struct {
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data []byte `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
 	// Data's name
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data name
@@ -337,7 +337,7 @@ type SsaResultResponseDataExtended struct {
 // body types.
 type SsaResultResponseDataExtendedWithImage struct {
 	// Data
-	Data interface{} `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
+	Data []byte `form:"Data,omitempty" json:"Data,omitempty" xml:"Data,omitempty"`
 	// Data's name
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data name
@@ -345,7 +345,7 @@ type SsaResultResponseDataExtendedWithImage struct {
 	// Data title
 	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
 	// Image data
-	Image interface{} `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
+	Image []byte `form:"Image,omitempty" json:"Image,omitempty" xml:"Image,omitempty"`
 	// image's name
 	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
 }
@@ -357,12 +357,16 @@ type SsaResultResponseDataListOrigin struct {
 	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
+	// image's name
+	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
 	// Data title
 	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
 	// date time
 	DateTime *string `form:"date_time,omitempty" json:"date_time,omitempty" xml:"date_time,omitempty"`
 	// User Name
 	UserName *string `form:"user_name,omitempty" json:"user_name,omitempty" xml:"user_name,omitempty"`
+	// User id
+	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
 }
 
 // NewRegisterResponseBodyExtended builds the HTTP response body from the
@@ -465,11 +469,13 @@ func NewSsaResultResponseDataListOriginCollection(res ssaserverviews.SsaResultCo
 	body := make([]*SsaResultResponseDataListOrigin, len(res))
 	for i, val := range res {
 		body[i] = &SsaResultResponseDataListOrigin{
-			UserName: val.UserName,
-			DataName: val.DataName,
-			DataType: val.DataType,
-			Title:    val.Title,
-			DateTime: val.DateTime,
+			UserID:    val.UserID,
+			UserName:  val.UserName,
+			DataName:  val.DataName,
+			DataType:  val.DataType,
+			Title:     val.Title,
+			ImageName: val.ImageName,
+			DateTime:  val.DateTime,
 		}
 	}
 	return body

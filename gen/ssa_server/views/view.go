@@ -43,9 +43,9 @@ type SsaResultView struct {
 	// Data name
 	DataName *string
 	// Data
-	Data interface{}
+	Data []byte
 	// Image data
-	Image interface{}
+	Image []byte
 	// Data's name
 	DataType *int
 	// Data title
@@ -96,9 +96,11 @@ var (
 		"data_list_origin": []string{
 			"data_type",
 			"data_name",
+			"image_name",
 			"title",
 			"date_time",
 			"user_name",
+			"user_id",
 		},
 	}
 	// SsaResultCollectionMap is a map of attribute names in result type
@@ -137,9 +139,11 @@ var (
 		"data_list_origin": []string{
 			"data_type",
 			"data_name",
+			"image_name",
 			"title",
 			"date_time",
 			"user_name",
+			"user_id",
 		},
 	}
 )
