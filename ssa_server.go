@@ -144,6 +144,7 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 // TODO
 // dbとの統合
 // リストどうやって送信するの?
+// SsaResultを、SsaResultCollectionに入れるみたいだけども入れてみたけど出力(値が返却)されなかったよ?
 func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnDataListPayload) (res ssaserver.SsaResultCollection, view string, err error) {
 	view = "data_list_origin"
 	s.logger.Print("sSAServer.Return_data_list")
@@ -182,7 +183,7 @@ func RandString(n int) string {
 
 // SaveFile save file in server
 func SaveFile(data []byte,path string, name string) error {
-	name = path + Getslash() + name
+	name = path + GetSlash() + name
 	f, err := os.Create(name)
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -203,13 +204,13 @@ func SaveFile(data []byte,path string, name string) error {
 // GetSavePath return current dir path
 func GetSavePath(gr string, id int) (path string){
 	path, _ = os.Getwd()
-	slash := Getslash()
+	slash := GetSlash()
 	path = path + slash + gr + slash + strconv.Itoa(id)
 	return path
 }
 
-// Getslash return backslash or slash on server's environment
-func Getslash() (slash string) {
+// GetSlash return backslash or slash on server's environment
+func GetSlash() (slash string) {
 	if runtime.GOOS == "windows" {
 		slash = "\\\\"
 	} else {

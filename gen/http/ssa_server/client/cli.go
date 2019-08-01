@@ -178,7 +178,7 @@ func BuildPickUpDataPayload(sSAServerPickUpDataBody string, sSAServerPickUpDataG
 	{
 		err = json.Unmarshal([]byte(sSAServerPickUpDataBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"data_name\": \"Record_12_2019-06-02_12-07-35\",\n      \"user_id\": 65\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"data_name\": \"Record_12_2019-06-02_12-07-35\",\n      \"data_user_id\": 5365,\n      \"iamge_name\": \"Image_2017-05-25-26-32\",\n      \"user_id\": 65\n   }'")
 		}
 	}
 	var groupID string
@@ -190,8 +190,10 @@ func BuildPickUpDataPayload(sSAServerPickUpDataBody string, sSAServerPickUpDataG
 		dataType = sSAServerPickUpDataDataType
 	}
 	v := &ssaserver.PickUpDataPayload{
-		UserID:   body.UserID,
-		DataName: body.DataName,
+		UserID:     body.UserID,
+		DataName:   body.DataName,
+		IamgeName:  body.IamgeName,
+		DataUserID: body.DataUserID,
 	}
 	v.GroupID = groupID
 	v.DataType = &dataType

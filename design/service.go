@@ -201,7 +201,13 @@ var _ = Service("SSAServer", func() {
 			Attribute("data_name", String, "Data name", func(){
 				Example("Record_12_2019-06-02_12-07-35")
 			})
-			Required("group_id", "user_id", "data_name")
+			Attribute("iamge_name", String, "Data name", func(){
+				Example("Image_2017-05-25-26-32")
+			})
+			Attribute("data_user_id", Int, "Data's User ID", func(){
+				Example(5365)
+			})
+			Required("group_id", "user_id", "data_name", "data_user_id")
 		})
 
 		Result(MyResultType, func(){

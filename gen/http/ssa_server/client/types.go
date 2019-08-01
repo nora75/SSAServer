@@ -85,6 +85,10 @@ type PickUpDataRequestBody struct {
 	UserID int `form:"user_id" json:"user_id" xml:"user_id"`
 	// Data name
 	DataName string `form:"data_name" json:"data_name" xml:"data_name"`
+	// Data name
+	IamgeName *string `form:"iamge_name,omitempty" json:"iamge_name,omitempty" xml:"iamge_name,omitempty"`
+	// Data's User ID
+	DataUserID int `form:"data_user_id" json:"data_user_id" xml:"data_user_id"`
 }
 
 // RegisterResponseBody is the type of the "SSAServer" service "Register"
@@ -393,8 +397,10 @@ func NewReturnDataListRequestBody(p *ssaserver.ReturnDataListPayload) *ReturnDat
 // the "Pick_up_data" endpoint of the "SSAServer" service.
 func NewPickUpDataRequestBody(p *ssaserver.PickUpDataPayload) *PickUpDataRequestBody {
 	body := &PickUpDataRequestBody{
-		UserID:   p.UserID,
-		DataName: p.DataName,
+		UserID:     p.UserID,
+		DataName:   p.DataName,
+		IamgeName:  p.IamgeName,
+		DataUserID: p.DataUserID,
 	}
 	return body
 }
