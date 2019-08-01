@@ -201,6 +201,9 @@ var _ = Service("SSAServer", func() {
 			Attribute("data_name", String, "Data name", func(){
 				Example("Record_12_2019-06-02_12-07-35")
 			})
+			Attribute("title", String, "Data name", func(){
+				Example("たいとる")
+			})
 			Attribute("iamge_name", String, "Data name", func(){
 				Example("Image_2017-05-25-26-32")
 			})

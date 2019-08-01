@@ -161,6 +161,8 @@ type PickUpDataPayload struct {
 	// Data name
 	DataName string
 	// Data name
+	Title *string
+	// Data name
 	IamgeName *string
 	// Data's User ID
 	DataUserID int

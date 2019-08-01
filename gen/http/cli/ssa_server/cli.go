@@ -325,6 +325,7 @@ Example:
       "data_name": "Record_12_2019-06-02_12-07-35",
       "data_user_id": 5365,
       "iamge_name": "Image_2017-05-25-26-32",
+      "title": "たいとる",
       "user_id": 65
    }' --groupid "group-isg" --data-type "0"
 `, os.Args[0])

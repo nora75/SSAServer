@@ -86,6 +86,8 @@ type PickUpDataRequestBody struct {
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
 	// Data name
+	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
+	// Data name
 	IamgeName *string `form:"iamge_name,omitempty" json:"iamge_name,omitempty" xml:"iamge_name,omitempty"`
 	// Data's User ID
 	DataUserID *int `form:"data_user_id,omitempty" json:"data_user_id,omitempty" xml:"data_user_id,omitempty"`
@@ -736,6 +738,7 @@ func NewPickUpDataPayload(body *PickUpDataRequestBody, groupID string, dataType 
 	v := &ssaserver.PickUpDataPayload{
 		UserID:     *body.UserID,
 		DataName:   *body.DataName,
+		Title:      body.Title,
 		IamgeName:  body.IamgeName,
 		DataUserID: *body.DataUserID,
 	}
