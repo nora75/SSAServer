@@ -719,8 +719,8 @@ func DecodeReturnDataListResponse(decoder func(*http.Response) goahttp.Decoder, 
 // path set to call the "SSAServer" service "Pick_up_data" endpoint
 func (c *Client) BuildPickUpDataRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
-		groupID  string
-		dataType string
+		groupID    string
+		dataUserID int
 	)
 	{
 		p, ok := v.(*ssaserver.PickUpDataPayload)
@@ -728,11 +728,9 @@ func (c *Client) BuildPickUpDataRequest(ctx context.Context, v interface{}) (*ht
 			return nil, goahttp.ErrInvalidType("SSAServer", "Pick_up_data", "*ssaserver.PickUpDataPayload", v)
 		}
 		groupID = p.GroupID
-		if p.DataType != nil {
-			dataType = *p.DataType
-		}
+		dataUserID = p.DataUserID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: PickUpDataSSAServerPath(groupID, dataType)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: PickUpDataSSAServerPath(groupID, dataUserID)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("SSAServer", "Pick_up_data", u.String(), err)

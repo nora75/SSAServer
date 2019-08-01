@@ -72,7 +72,7 @@ func New(
 			{"DeleteUser", "DELETE", "/users/{user_id}"},
 			{"SaveData", "POST", "/group/{group_id}"},
 			{"ReturnDataList", "GET", "/group/{group_id}"},
-			{"PickUpData", "GET", "/group/{group_id}/{data_type}"},
+			{"PickUpData", "GET", "/group/{group_id}/{data_user_id}"},
 			{"gen/http/openapi.json", "GET", "/openapi.json"},
 		},
 		Register:       NewRegisterHandler(e.Register, mux, dec, enc, eh),
@@ -434,7 +434,7 @@ func MountPickUpDataHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/group/{group_id}/{data_type}", f)
+	mux.Handle("GET", "/group/{group_id}/{data_user_id}", f)
 }
 
 // NewPickUpDataHandler creates a HTTP handler which loads the HTTP request and

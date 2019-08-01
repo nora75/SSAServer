@@ -81,16 +81,14 @@ type ReturnDataListRequestBody struct {
 // PickUpDataRequestBody is the type of the "SSAServer" service "Pick_up_data"
 // endpoint HTTP request body.
 type PickUpDataRequestBody struct {
+	// Data type
+	DataType *int `form:"data_type,omitempty" json:"data_type,omitempty" xml:"data_type,omitempty"`
 	// User ID
 	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
 	// Data name
-	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
-	// Data name
-	IamgeName *string `form:"iamge_name,omitempty" json:"iamge_name,omitempty" xml:"iamge_name,omitempty"`
-	// Data's User ID
-	DataUserID *int `form:"data_user_id,omitempty" json:"data_user_id,omitempty" xml:"data_user_id,omitempty"`
+	ImageName *string `form:"image_name,omitempty" json:"image_name,omitempty" xml:"image_name,omitempty"`
 }
 
 // RegisterResponseBodyExtended is the type of the "SSAServer" service
@@ -734,16 +732,15 @@ func NewReturnDataListPayload(body *ReturnDataListRequestBody, groupID string) *
 
 // NewPickUpDataPayload builds a SSAServer service Pick_up_data endpoint
 // payload.
-func NewPickUpDataPayload(body *PickUpDataRequestBody, groupID string, dataType string) *ssaserver.PickUpDataPayload {
+func NewPickUpDataPayload(body *PickUpDataRequestBody, groupID string, dataUserID int) *ssaserver.PickUpDataPayload {
 	v := &ssaserver.PickUpDataPayload{
-		UserID:     *body.UserID,
-		DataName:   *body.DataName,
-		Title:      body.Title,
-		IamgeName:  body.IamgeName,
-		DataUserID: *body.DataUserID,
+		DataType:  *body.DataType,
+		UserID:    *body.UserID,
+		DataName:  *body.DataName,
+		ImageName: body.ImageName,
 	}
 	v.GroupID = groupID
-	v.DataType = &dataType
+	v.DataUserID = dataUserID
 	return v
 }
 
@@ -827,14 +824,14 @@ func ValidateReturnDataListRequestBody(body *ReturnDataListRequestBody) (err err
 // ValidatePickUpDataRequestBody runs the validations defined on
 // Pick_up_data_Request_Body
 func ValidatePickUpDataRequestBody(body *PickUpDataRequestBody) (err error) {
+	if body.DataType == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("data_type", "body"))
+	}
 	if body.UserID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("user_id", "body"))
 	}
 	if body.DataName == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("data_name", "body"))
-	}
-	if body.DataUserID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("data_user_id", "body"))
 	}
 	return
 }

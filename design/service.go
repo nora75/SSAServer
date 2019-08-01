@@ -192,8 +192,8 @@ var _ = Service("SSAServer", func() {
 			Attribute("group_id", String, "Group ID", func(){
 				Example("group-isg")
 			})
-			Attribute("data_type", String, "Data type", func(){
-				Example("0")
+			Attribute("data_type", Int, "Data type", func(){
+				Example(0)
 			})
 			Attribute("user_id", Int, "User ID", func(){
 				Example(65)
@@ -201,16 +201,13 @@ var _ = Service("SSAServer", func() {
 			Attribute("data_name", String, "Data name", func(){
 				Example("Record_12_2019-06-02_12-07-35")
 			})
-			Attribute("title", String, "Data name", func(){
-				Example("たいとる")
-			})
-			Attribute("iamge_name", String, "Data name", func(){
+			Attribute("image_name", String, "Data name", func(){
 				Example("Image_2017-05-25-26-32")
 			})
 			Attribute("data_user_id", Int, "Data's User ID", func(){
 				Example(5365)
 			})
-			Required("group_id", "user_id", "data_name", "data_user_id")
+			Required("group_id", "data_type", "user_id", "data_name", "data_user_id")
 		})
 
 		Result(MyResultType, func(){
@@ -219,7 +216,7 @@ var _ = Service("SSAServer", func() {
 		})
 
 		HTTP(func() {
-			GET("/group/{group_id}/{data_type}")
+			GET("/group/{group_id}/{data_user_id}")
 			MultipartRequest()
 			Response(StatusOK)
 			Response("Invalid_Group_ID", StatusNotFound)

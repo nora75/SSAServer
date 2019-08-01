@@ -8,9 +8,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
-	"runtime"
 	"strings"
-	"strconv"
 	"time"
 )
 
@@ -114,8 +112,8 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	switch p.DataType {
-	case 1: mes = "日記"
-	case 2: mes = "録音"
+	case 0: mes = "日記"
+	case 1: mes = "録音"
 	default: return false, fmt.Errorf("不正なdata_typeです。")
 	}
 	path := GetSavePath(p.GroupID, p.UserID)
@@ -132,11 +130,11 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
 	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
 		err = SaveFile(p.Image, path, *p.ImageName)
+		if err !=  nil {
+			return false, err
+		}
+		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	}
-	if err !=  nil {
-		return false, err
-	}
-	s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	return true, nil
 }
 
@@ -146,8 +144,8 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 // リストどうやって送信するの?
 // SsaResultを、SsaResultCollectionに入れるみたいだけども入れてみたけど出力(値が返却)されなかったよ?
 func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnDataListPayload) (res ssaserver.SsaResultCollection, view string, err error) {
-	view = "data_list_origin"
 	s.logger.Print("sSAServer.Return_data_list")
+	view = "data_list_origin"
 	return res, view, nil
 }
 
@@ -157,8 +155,21 @@ func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnD
 // データの実際の送信
 // データのread
 func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataPayload) (res *ssaserver.SsaResult, err error) {
-	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Pick_up_data")
+	res = &ssaserver.SsaResult{}
+	fmt.Println("GroupID:"+p.GroupID)
+	res.GroupID = &p.GroupID
+	fmt.Println("DataType:",p.DataType)
+	res.DataType = &p.DataType
+	fmt.Println("DataUserID:",p.DataUserID)
+	fmt.Println("UserID:",p.UserID)
+	res.UserID = &p.UserID
+	fmt.Println("DataName:",p.DataName)
+	res.DataName = &p.DataName
+	if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
+		fmt.Println(p.ImageName)
+		res.ImageName = p.ImageName
+	}
 	return res, nil
 }
 
@@ -179,42 +190,4 @@ func RandString(n int) string {
         remain--
     }
     return string(b)
-}
-
-// SaveFile save file in server
-func SaveFile(data []byte,path string, name string) error {
-	name = path + GetSlash() + name
-	f, err := os.Create(name)
-	defer func() {
-		if err := f.Close(); err != nil {
-			panic(err)
-		}
-	}()
-	if err != nil {
-		return fmt.Errorf("failed to open file: %s", err)
-	}
-	_, err = f.Write(data)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %s", err)
-	}
-	return nil
-}
-
-
-// GetSavePath return current dir path
-func GetSavePath(gr string, id int) (path string){
-	path, _ = os.Getwd()
-	slash := GetSlash()
-	path = path + slash + gr + slash + strconv.Itoa(id)
-	return path
-}
-
-// GetSlash return backslash or slash on server's environment
-func GetSlash() (slash string) {
-	if runtime.GOOS == "windows" {
-		slash = "\\\\"
-	} else {
-		slash = "/"
-	}
-	return slash
 }

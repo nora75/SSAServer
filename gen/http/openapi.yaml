@@ -148,7 +148,7 @@ paths:
             $ref: '#/definitions/SSAServerSaveDataInvalidGroupIDResponseBody'
       schemes:
       - https
-  /group/{group_id}/{data_type}:
+  /group/{group_id}/{data_user_id}:
     get:
       tags:
       - SSAServer
@@ -161,20 +161,20 @@ paths:
         description: Group ID
         required: true
         type: string
-      - name: data_type
+      - name: data_user_id
         in: path
-        description: Data type
+        description: Data's User ID
         required: true
-        type: string
+        type: integer
       - name: Pick_up_data_Request_Body
         in: body
         required: true
         schema:
           $ref: '#/definitions/SSAServerPickUpDataRequestBody'
           required:
+          - data_type
           - user_id
           - data_name
-          - data_user_id
       responses:
         "200":
           description: OK response.
@@ -495,19 +495,15 @@ definitions:
         type: string
         description: Data name
         example: Record_12_2019-06-02_12-07-35
-      data_user_id:
+      data_type:
         type: integer
-        description: Data's User ID
-        example: 5365
+        description: Data type
+        example: 0
         format: int64
-      iamge_name:
+      image_name:
         type: string
         description: Data name
         example: Image_2017-05-25-26-32
-      title:
-        type: string
-        description: Data name
-        example: たいとる
       user_id:
         type: integer
         description: User ID
@@ -515,14 +511,13 @@ definitions:
         format: int64
     example:
       data_name: Record_12_2019-06-02_12-07-35
-      data_user_id: 5365
-      iamge_name: Image_2017-05-25-26-32
-      title: たいとる
+      data_type: 0
+      image_name: Image_2017-05-25-26-32
       user_id: 65
     required:
+    - data_type
     - user_id
     - data_name
-    - data_user_id
   SSAServerPickUpDataResponseBodyDataExtendedWithImage:
     title: 'Mediatype identifier: application/vnd.ssa.result; view=data_extended_with_image'
     type: object

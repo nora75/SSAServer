@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -34,12 +33,7 @@ func main() {
 
 	)
 	{
-		logpath, _ := os.Getwd()
-		if runtime.GOOS == "windows" {
-			logpath += "\\log\\ssa.log";
-		} else {
-			logpath += "/log/ssa.log";
-		}
+		logpath := ssa.GetLogPath()
 		logger = log.New(&lumberjack.Logger{
 			Filename: logpath,
 			MaxSize: 500,

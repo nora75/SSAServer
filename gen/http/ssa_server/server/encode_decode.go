@@ -538,15 +538,26 @@ func NewSSAServerPickUpDataDecoder(mux goahttp.Muxer, sSAServerPickUpDataDecoder
 			}
 
 			var (
-				groupID  string
-				dataType string
+				groupID    string
+				dataUserID int
+				err        error
 
 				params = mux.Vars(r)
 			)
 			groupID = params["group_id"]
-			dataType = params["data_type"]
+			{
+				dataUserIDRaw := params["data_user_id"]
+				v, err2 := strconv.ParseInt(dataUserIDRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("dataUserID", dataUserIDRaw, "integer"))
+				}
+				dataUserID = int(v)
+			}
+			if err != nil {
+				return err
+			}
 			(*p).GroupID = groupID
-			(*p).DataType = &dataType
+			(*p).DataUserID = dataUserID
 			return nil
 		})
 	}

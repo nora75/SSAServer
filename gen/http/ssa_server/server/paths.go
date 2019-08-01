@@ -42,6 +42,6 @@ func ReturnDataListSSAServerPath(groupID string) string {
 }
 
 // PickUpDataSSAServerPath returns the URL path to the SSAServer service Pick_up_data HTTP endpoint.
-func PickUpDataSSAServerPath(groupID string, dataType string) string {
-	return fmt.Sprintf("/group/%v/%v", groupID, dataType)
+func PickUpDataSSAServerPath(groupID string, dataUserID int) string {
+	return fmt.Sprintf("/group/%v/%v", groupID, dataUserID)
 }

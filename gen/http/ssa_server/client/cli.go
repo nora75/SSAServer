@@ -172,31 +172,35 @@ func BuildReturnDataListPayload(sSAServerReturnDataListBody string, sSAServerRet
 
 // BuildPickUpDataPayload builds the payload for the SSAServer Pick_up_data
 // endpoint from CLI flags.
-func BuildPickUpDataPayload(sSAServerPickUpDataBody string, sSAServerPickUpDataGroupID string, sSAServerPickUpDataDataType string) (*ssaserver.PickUpDataPayload, error) {
+func BuildPickUpDataPayload(sSAServerPickUpDataBody string, sSAServerPickUpDataGroupID string, sSAServerPickUpDataDataUserID string) (*ssaserver.PickUpDataPayload, error) {
 	var err error
 	var body PickUpDataRequestBody
 	{
 		err = json.Unmarshal([]byte(sSAServerPickUpDataBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"data_name\": \"Record_12_2019-06-02_12-07-35\",\n      \"data_user_id\": 5365,\n      \"iamge_name\": \"Image_2017-05-25-26-32\",\n      \"title\": \"たいとる\",\n      \"user_id\": 65\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"data_name\": \"Record_12_2019-06-02_12-07-35\",\n      \"data_type\": 0,\n      \"image_name\": \"Image_2017-05-25-26-32\",\n      \"user_id\": 65\n   }'")
 		}
 	}
 	var groupID string
 	{
 		groupID = sSAServerPickUpDataGroupID
 	}
-	var dataType string
+	var dataUserID int
 	{
-		dataType = sSAServerPickUpDataDataType
+		var v int64
+		v, err = strconv.ParseInt(sSAServerPickUpDataDataUserID, 10, 64)
+		dataUserID = int(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for dataUserID, must be INT")
+		}
 	}
 	v := &ssaserver.PickUpDataPayload{
-		UserID:     body.UserID,
-		DataName:   body.DataName,
-		Title:      body.Title,
-		IamgeName:  body.IamgeName,
-		DataUserID: body.DataUserID,
+		DataType:  body.DataType,
+		UserID:    body.UserID,
+		DataName:  body.DataName,
+		ImageName: body.ImageName,
 	}
 	v.GroupID = groupID
-	v.DataType = &dataType
+	v.DataUserID = dataUserID
 	return v, nil
 }

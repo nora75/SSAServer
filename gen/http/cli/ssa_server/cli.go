@@ -74,10 +74,10 @@ func ParseEndpoint(
 		sSAServerReturnDataListBodyFlag    = sSAServerReturnDataListFlags.String("body", "REQUIRED", "")
 		sSAServerReturnDataListGroupIDFlag = sSAServerReturnDataListFlags.String("groupid", "REQUIRED", "Group ID")
 
-		sSAServerPickUpDataFlags        = flag.NewFlagSet("pick-up-data", flag.ExitOnError)
-		sSAServerPickUpDataBodyFlag     = sSAServerPickUpDataFlags.String("body", "REQUIRED", "")
-		sSAServerPickUpDataGroupIDFlag  = sSAServerPickUpDataFlags.String("groupid", "REQUIRED", "Group ID")
-		sSAServerPickUpDataDataTypeFlag = sSAServerPickUpDataFlags.String("data-type", "REQUIRED", "Data type")
+		sSAServerPickUpDataFlags          = flag.NewFlagSet("pick-up-data", flag.ExitOnError)
+		sSAServerPickUpDataBodyFlag       = sSAServerPickUpDataFlags.String("body", "REQUIRED", "")
+		sSAServerPickUpDataGroupIDFlag    = sSAServerPickUpDataFlags.String("groupid", "REQUIRED", "Group ID")
+		sSAServerPickUpDataDataUserIDFlag = sSAServerPickUpDataFlags.String("data-userid", "REQUIRED", "Data's User ID")
 	)
 	sSAServerFlags.Usage = sSAServerUsage
 	sSAServerRegisterFlags.Usage = sSAServerRegisterUsage
@@ -188,7 +188,7 @@ func ParseEndpoint(
 				data, err = ssaserverc.BuildReturnDataListPayload(*sSAServerReturnDataListBodyFlag, *sSAServerReturnDataListGroupIDFlag)
 			case "pick-up-data":
 				endpoint = c.PickUpData(sSAServerPickUpDataEncoderFn)
-				data, err = ssaserverc.BuildPickUpDataPayload(*sSAServerPickUpDataBodyFlag, *sSAServerPickUpDataGroupIDFlag, *sSAServerPickUpDataDataTypeFlag)
+				data, err = ssaserverc.BuildPickUpDataPayload(*sSAServerPickUpDataBodyFlag, *sSAServerPickUpDataGroupIDFlag, *sSAServerPickUpDataDataUserIDFlag)
 			}
 		}
 	}
@@ -313,20 +313,19 @@ Example:
 }
 
 func sSAServerPickUpDataUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] ssa-server pick-up-data -body JSON -groupid STRING -data-type STRING
+	fmt.Fprintf(os.Stderr, `%s [flags] ssa-server pick-up-data -body JSON -groupid STRING -data-userid INT
 
 データをサーバーから取得する
     -body JSON: 
     -groupid STRING: Group ID
-    -data-type STRING: Data type
+    -data-userid INT: Data's User ID
 
 Example:
     `+os.Args[0]+` ssa-server pick-up-data --body '{
       "data_name": "Record_12_2019-06-02_12-07-35",
-      "data_user_id": 5365,
-      "iamge_name": "Image_2017-05-25-26-32",
-      "title": "たいとる",
+      "data_type": 0,
+      "image_name": "Image_2017-05-25-26-32",
       "user_id": 65
-   }' --groupid "group-isg" --data-type "0"
+   }' --groupid "group-isg" --data-userid 5365
 `, os.Args[0])
 }
