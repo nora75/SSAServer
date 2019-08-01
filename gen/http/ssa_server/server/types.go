@@ -85,6 +85,10 @@ type PickUpDataRequestBody struct {
 	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
+	// Data name
+	IamgeName *string `form:"iamge_name,omitempty" json:"iamge_name,omitempty" xml:"iamge_name,omitempty"`
+	// Data's User ID
+	DataUserID *int `form:"data_user_id,omitempty" json:"data_user_id,omitempty" xml:"data_user_id,omitempty"`
 }
 
 // RegisterResponseBodyExtended is the type of the "SSAServer" service
@@ -730,8 +734,10 @@ func NewReturnDataListPayload(body *ReturnDataListRequestBody, groupID string) *
 // payload.
 func NewPickUpDataPayload(body *PickUpDataRequestBody, groupID string, dataType string) *ssaserver.PickUpDataPayload {
 	v := &ssaserver.PickUpDataPayload{
-		UserID:   *body.UserID,
-		DataName: *body.DataName,
+		UserID:     *body.UserID,
+		DataName:   *body.DataName,
+		IamgeName:  body.IamgeName,
+		DataUserID: *body.DataUserID,
 	}
 	v.GroupID = groupID
 	v.DataType = &dataType
@@ -823,6 +829,9 @@ func ValidatePickUpDataRequestBody(body *PickUpDataRequestBody) (err error) {
 	}
 	if body.DataName == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("data_name", "body"))
+	}
+	if body.DataUserID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("data_user_id", "body"))
 	}
 	return
 }

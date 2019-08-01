@@ -286,10 +286,10 @@ func newSsaResult(vres *ssaserverviews.SsaResultView) *SsaResult {
 		UserName: vres.UserName,
 	}
 	if vres.UserID != nil {
-		res.UserID = vres.UserID
+		res.UserID = *vres.UserID
 	}
 	if vres.Mail != nil {
-		res.Mail = vres.Mail
+		res.Mail = *vres.Mail
 	}
 	return res
 }
@@ -302,10 +302,10 @@ func newSsaResultExtended(vres *ssaserverviews.SsaResultView) *SsaResult {
 		GroupID:  vres.GroupID,
 	}
 	if vres.UserID != nil {
-		res.UserID = vres.UserID
+		res.UserID = *vres.UserID
 	}
 	if vres.Mail != nil {
-		res.Mail = vres.Mail
+		res.Mail = *vres.Mail
 	}
 	return res
 }
@@ -358,7 +358,7 @@ func newSsaResultDataListOrigin(vres *ssaserverviews.SsaResultView) *SsaResult {
 		UserName:  vres.UserName,
 	}
 	if vres.UserID != nil {
-		res.UserID = vres.UserID
+		res.UserID = *vres.UserID
 	}
 	return res
 }
@@ -367,9 +367,9 @@ func newSsaResultDataListOrigin(vres *ssaserverviews.SsaResultView) *SsaResult {
 // SsaResultView using the "default" view.
 func newSsaResultView(res *SsaResult) *ssaserverviews.SsaResultView {
 	vres := &ssaserverviews.SsaResultView{
-		UserID:   res.UserID,
+		UserID:   &res.UserID,
 		UserName: res.UserName,
-		Mail:     res.Mail,
+		Mail:     &res.Mail,
 	}
 	return vres
 }
@@ -378,9 +378,9 @@ func newSsaResultView(res *SsaResult) *ssaserverviews.SsaResultView {
 // SsaResultView using the "extended" view.
 func newSsaResultViewExtended(res *SsaResult) *ssaserverviews.SsaResultView {
 	vres := &ssaserverviews.SsaResultView{
-		UserID:   res.UserID,
+		UserID:   &res.UserID,
 		UserName: res.UserName,
-		Mail:     res.Mail,
+		Mail:     &res.Mail,
 		GroupID:  res.GroupID,
 	}
 	return vres
@@ -427,7 +427,7 @@ func newSsaResultViewDataExtendedWithImage(res *SsaResult) *ssaserverviews.SsaRe
 // type SsaResultView using the "data_list_origin" view.
 func newSsaResultViewDataListOrigin(res *SsaResult) *ssaserverviews.SsaResultView {
 	vres := &ssaserverviews.SsaResultView{
-		UserID:    res.UserID,
+		UserID:    &res.UserID,
 		UserName:  res.UserName,
 		DataName:  res.DataName,
 		DataType:  res.DataType,
