@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"fmt"
 	"math/rand"
-	"os"
+	// "os"
 	"strings"
 	"time"
 )
@@ -79,14 +79,20 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 // グループIDを変更する
 // TODO
 // dbとの統合
-// dir 移動 recursive
 func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
-	r := regexp.MustCompile(`group`)
+	r := regexp.MustCompile(`^group-`)
 	if r.MatchString(p.GroupID) {
-		return true , nil
+		return false , fmt.Errorf("不正なグループ名です。")
 	}
-	return false , fmt.Errorf("不正なグループ名です。")
+	// oldpath := GetUserDirPath(p.GroupID, p.UserID)
+	oldpath := GetUserDirPath("group-"+p.Password, p.UserID)
+	newpath := GetUserDirPath(p.GroupID, p.UserID)
+	err = MoveUserDir(oldpath, newpath)
+	if err !=  nil {
+		return false, err
+	}
+	return true , nil
 }
 
 // 既存ユーザーの消去
@@ -94,35 +100,34 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 // dbとの統合
 func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Delete_user")
-	r := regexp.MustCompile(`pass`)
+	r := regexp.MustCompile(`^group-`)
 	if r.MatchString(p.Password) {
 		return false, fmt.Errorf("パスワードが不正です。")
 	}
+	path := GetUserDirPath("group-"+p.Password, p.UserID)
+	err = DeleteUserDir(path)
+	if err !=  nil {
+		return false, err
+	}
+	// err = DeleteGroupDir(path)
+	// if err !=  nil {
+	// 	fmt.Println("An error occured when delete group dir:"+path)
+	// }
 	return true, nil
 }
 
 // データをサーバーへ保存する
 // TODO
 // dbとの統合
-// mulipart
-// fileの移動
-// データをファイルと分ける
-// ファイルを複数分ける
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	switch p.DataType {
-	case 0: mes = "日記"
-	case 1: mes = "録音"
-	default: return false, fmt.Errorf("不正なdata_typeです。")
+		case 0: mes = "日記"
+		case 1: mes = "録音"
+		default: return false, fmt.Errorf("不正なdata_typeです。")
 	}
-	path := GetSavePath(p.GroupID, p.UserID)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		err := os.MkdirAll(path, 0700)
-		if err !=  nil {
-			return false, err
-		}
-	}
+	path := GetUserDirPath(p.GroupID, p.UserID)
 	err = SaveFile(p.Data, path, p.DataName)
 	if err !=  nil {
 		return false, err
@@ -157,17 +162,17 @@ func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnD
 func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataPayload) (res *ssaserver.SsaResult, err error) {
 	s.logger.Print("sSAServer.Pick_up_data")
 	res = &ssaserver.SsaResult{}
-	fmt.Println("GroupID:"+p.GroupID)
 	res.GroupID = &p.GroupID
-	fmt.Println("DataType:",p.DataType)
 	res.DataType = &p.DataType
-	fmt.Println("DataUserID:",p.DataUserID)
-	fmt.Println("UserID:",p.UserID)
 	res.UserID = &p.UserID
+	fmt.Println("GroupID:"+p.GroupID)
+	fmt.Println("DataUserID:",p.DataUserID)
+	fmt.Println("DataType:",p.DataType)
+	fmt.Println("UserID:",p.UserID)
 	fmt.Println("DataName:",p.DataName)
 	res.DataName = &p.DataName
 	if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
-		fmt.Println(p.ImageName)
+		fmt.Println("ImageName:",p.ImageName)
 		res.ImageName = p.ImageName
 	}
 	return res, nil
