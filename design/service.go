@@ -218,7 +218,6 @@ var _ = Service("SSAServer", func() {
 		HTTP(func() {
 			GET("/group/{group_id}/{data_user_id}")
 			MultipartRequest()
-			Response(StatusOK)
 			Response("Invalid_Group_ID", StatusNotFound)
 			Response("Invalid_Request", StatusBadRequest)
 			Response("Invalid_data_name", StatusBadRequest)

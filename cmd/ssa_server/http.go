@@ -54,7 +54,7 @@ func handleHTTPServer(ctx context.Context, u *url.URL, sSAServerEndpoints *ssase
 	)
 	{
 		eh := errorHandler(logger)
-		sSAServerServer = ssaserversvr.New(sSAServerEndpoints, mux, dec, enc, eh, ssa.SSAServerSaveDataDecoderFunc, ssa.SSAServerPickUpDataDecoderFunc)
+		sSAServerServer = ssaserversvr.New(sSAServerEndpoints, mux, dec, enc, eh, ssa.SSAServerSaveDataDecoderFunc, ssa.SSAServerPickUpDataDecoderFunc, ssa.SSAServerPickUpDataEncoderFunc)
 	}
 	// Configure the mux.
 	ssaserversvr.Mount(mux, sSAServerServer)

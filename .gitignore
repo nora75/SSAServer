@@ -2,7 +2,7 @@ go.sum
 go.mod
 ssa_server.exe
 ssa_server.elf
-ssa_server
 back/*
 testhoge
 log/
+group*/

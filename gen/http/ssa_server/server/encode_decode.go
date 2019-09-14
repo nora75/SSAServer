@@ -10,10 +10,13 @@ package server
 import (
 	ssaserver "SSAServer/gen/ssa_server"
 	ssaserverviews "SSAServer/gen/ssa_server/views"
+	"bytes"
 	"context"
 	"io"
 	"net/http"
 	"strconv"
+	"mime/multipart"
+	"fmt"
 
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
@@ -500,8 +503,8 @@ func EncodeReturnDataListError(encoder func(context.Context, http.ResponseWriter
 
 // EncodePickUpDataResponse returns an encoder for responses returned by the
 // SSAServer Pick_up_data endpoint.
-func EncodePickUpDataResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
-	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+func EncodePickUpDataResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, ssaserver.PickUpDataPayload, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, p ssaserver.PickUpDataPayload , v interface{}) error {
 		res := v.(*ssaserverviews.SsaResult)
 		enc := encoder(ctx, w)
 		body := NewPickUpDataResponseBodyDataExtendedWithImage(res.Projected)
@@ -558,6 +561,52 @@ func NewSSAServerPickUpDataDecoder(mux goahttp.Muxer, sSAServerPickUpDataDecoder
 			}
 			(*p).GroupID = groupID
 			(*p).DataUserID = dataUserID
+			return nil
+		})
+	}
+}
+
+// NewSSAServerPickUpDataEncoder returns a encoder to encode the multipart
+// request for the "SSAServer" service "Pick_up_data" endpoint.
+func NewSSAServerPickUpDataEncoder(mux goahttp.Muxer, sSAServerPickUpDataEncoderFn SSAServerPickUpDataEncoderFunc) func(ctx context.Context, w http.ResponseWriter) goahttp.Encoder {
+	return func(ctx context.Context, w http.ResponseWriter) goahttp.Encoder {
+		return goahttp.EncodingFunc(func(v interface{}) error {
+			fmt.Println("called newpickupenc")
+			var b bytes.Buffer
+			mw := multipart.NewWriter(&b)
+			// p := mux.Vars(r)
+			// fmt.Println(p)
+			p := v.(**ssaserver.PickUpDataPayload)
+			// fmt.Println(p)
+			// fmt.Println("before internal error")
+			// fmt.Println(*mux.Vars)
+			if err := sSAServerPickUpDataEncoderFn(mw, *p); err != nil {
+				fmt.Println("internal error")
+				return err
+			}
+			fmt.Println("called newpick: before return end")
+
+			// var (
+			// 	groupID    string
+			// 	dataUserID int
+			// 	err        error
+
+			// 	params = mux.Vars(r)
+			// )
+			// groupID = params["group_id"]
+			// {
+			// 	dataUserIDRaw := params["data_user_id"]
+			// 	v, err2 := strconv.ParseInt(dataUserIDRaw, 10, strconv.IntSize)
+			// 	if err2 != nil {
+			// 		err = goa.MergeErrors(err, goa.InvalidFieldTypeError("dataUserID", dataUserIDRaw, "integer"))
+			// 	}
+			// 	dataUserID = int(v)
+			// }
+			// if err != nil {
+			// 	return err
+			// }
+			// (*p).GroupID = groupID
+			// (*p).DataUserID = dataUserID
 			return nil
 		})
 	}

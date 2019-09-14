@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"strconv"
-	// "strings"
+	"strings"
+	"os"
 
 	ssaserver "SSAServer/gen/ssa_server"
 	// client "SSAServer/gen/http/ssa_server/client"
@@ -52,11 +53,11 @@ func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPa
 		case "Image":
 			ret.Image = slurp
 		default:
-			mes := part.FormName() + "' is invalid form data"
+			mes := part.FormName() + " is invalid form data"
 			return fmt.Errorf(mes)
 		}
 	}
-	*p = server.NewSaveDataPayload(ret,"hoge")
+	*p = server.NewSaveDataPayload(ret,"gr")
 	return nil
 }
 
@@ -64,34 +65,7 @@ func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPa
 // "SSAServer" endpoint "Save_data".
 func SSAServerSaveDataEncoderFunc(mw *multipart.Writer, p *ssaserver.SaveDataPayload) error {
 	// Add multipart request encoder logic here
-	// dataFile, err := os.Create(p.DataName)
-	// defer func() {
-	// 	if err := dataFile.Close(); err != nil {
-	// 		panic(err)
-	// 	}
-	// }()
-	// if err != nil {
-	// 	return fmt.Errorf("failed to open file: %s", err)
-	// }
-	// _, err = io.Copy(dataFile, *p.Data)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to open file: %s", err)
-	// }
-	// if p.Image == nil || strings.EqualFold(*p.ImageName, ""){
-	// 	imageFile, err := os.Create(*p.ImageName)
-	// 	defer func() {
-	// 		if err := imageFile.Close(); err != nil {
-	// 			panic(err)
-	// 		}
-	// 	}()
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to open file: %s", err)
-	// 	}
-	// 	_, err = io.Copy(imageFile, *p.Image)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to open file: %s", err)
-	// 	}
-	// }
+	fmt.Println("called")
 	return nil
 }
 
@@ -100,23 +74,102 @@ func SSAServerSaveDataEncoderFunc(mw *multipart.Writer, p *ssaserver.SaveDataPay
 // p after encoding.
 func SSAServerPickUpDataDecoderFunc(mr *multipart.Reader, p **ssaserver.PickUpDataPayload) error {
 	// Add multipart request decoder logic here
+	ret := &server.PickUpDataRequestBody{}
+	for {
+		part, err := mr.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to load part: %s", err)
+		}
+		slurp, err := ioutil.ReadAll(part)
+		if err != nil {
+			return fmt.Errorf("failed to load part: %s", err)
+		}
+		switch part.FormName() {
+		case "user_id":
+			st, _ := strconv.Atoi(string(slurp))
+			ret.UserID = &st
+		case "data_name":
+			st := string(slurp)
+			ret.DataName = &st
+		case "data_type":
+			st, _ := strconv.Atoi(string(slurp))
+			ret.DataType = &st
+		case "image_name":
+			st := string(slurp)
+			ret.ImageName = &st
+		default:
+			mes := part.FormName() + " is invalid form data"
+			return fmt.Errorf(mes)
+		}
+	}
+	*p = server.NewPickUpDataPayload(ret,"hoge",1234)
 	return nil
 }
 
 // SSAServerPickUpDataEncoderFunc implements the multipart encoder for service
 // "SSAServer" endpoint "Pick_up_data".
 func SSAServerPickUpDataEncoderFunc(mw *multipart.Writer, p *ssaserver.PickUpDataPayload) error {
-	// Add multipart request encoder logic here
+	err := createFileField(mw, p, p.DataName, "Data")
+	if err != nil {
+		return err
+	}
+	err = mw.WriteField("data_type", strconv.Itoa(p.DataType))
+	if err != nil {
+		return err
+	}
+	err = mw.WriteField("data_name", p.DataName)
+	if err != nil {
+		return err
+	}
+	if p.DataType == 1 {
+		err = mw.WriteField("title", "たいとる")
+		if err != nil {
+			return err
+		}
+		if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
+			err = createFileField(mw, p, *p.ImageName, "Image")
+			if err != nil {
+				return err
+			}
+			err = mw.WriteField("image_name", *p.ImageName)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	err = mw.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-/*
-/ Make new file by filename var
-*/
-// func MakeFile(fileName string) *os.File {
-// 	fileVar, err := os.Create(fileName)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to open file: %s", err)
-// 	}
-// 	return fileVar
-// }
+func createFileField(mw *multipart.Writer, p *ssaserver.PickUpDataPayload, name string, fname string) error {
+	path := GetPickUpPath(p.GroupID, p.DataUserID, name)
+	fmt.Println(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	fileContents, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+	fi, err := file.Stat()
+	if err != nil {
+		return err
+	}
+	file.Close()
+	part, err := mw.CreateFormFile(fname, fi.Name())
+	if err != nil {
+		return err
+	}
+	_, err = part.Write(fileContents)
+	if err != nil {
+		return err
+	}
+	return nil
+}

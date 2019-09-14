@@ -54,6 +54,10 @@ type SSAServerSaveDataDecoderFunc func(*multipart.Reader, **ssaserver.SaveDataPa
 // the "SSAServer" service "Pick_up_data" endpoint.
 type SSAServerPickUpDataDecoderFunc func(*multipart.Reader, **ssaserver.PickUpDataPayload) error
 
+// SSAServerPickUpDataEncoderFunc is the type to encode multipart request for
+// the "SSAServer" service "Pick_up_data" endpoint.
+type SSAServerPickUpDataEncoderFunc func(*multipart.Writer, *ssaserver.PickUpDataPayload) error
+
 // New instantiates HTTP handlers for all the SSAServer service endpoints.
 func New(
 	e *ssaserver.Endpoints,
@@ -63,6 +67,7 @@ func New(
 	eh func(context.Context, http.ResponseWriter, error),
 	sSAServerSaveDataDecoderFn SSAServerSaveDataDecoderFunc,
 	sSAServerPickUpDataDecoderFn SSAServerPickUpDataDecoderFunc,
+	sSAServerPickUpDataEncoderFn SSAServerPickUpDataEncoderFunc,
 ) *Server {
 	return &Server{
 		Mounts: []*MountPoint{
@@ -81,7 +86,8 @@ func New(
 		DeleteUser:     NewDeleteUserHandler(e.DeleteUser, mux, dec, enc, eh),
 		SaveData:       NewSaveDataHandler(e.SaveData, mux, NewSSAServerSaveDataDecoder(mux, sSAServerSaveDataDecoderFn), enc, eh),
 		ReturnDataList: NewReturnDataListHandler(e.ReturnDataList, mux, dec, enc, eh),
-		PickUpData:     NewPickUpDataHandler(e.PickUpData, mux, NewSSAServerPickUpDataDecoder(mux, sSAServerPickUpDataDecoderFn), enc, eh),
+		// PickUpData:     NewPickUpDataHandler(e.PickUpData, mux, NewSSAServerPickUpDataDecoder(mux, sSAServerPickUpDataDecoderFn), enc, eh),
+		PickUpData:     NewPickUpDataHandler(e.PickUpData, mux, NewSSAServerPickUpDataDecoder(mux, sSAServerPickUpDataDecoderFn), NewSSAServerPickUpDataEncoder(mux, sSAServerPickUpDataEncoderFn), eh),
 	}
 }
 
@@ -471,7 +477,8 @@ func NewPickUpDataHandler(
 			}
 			return
 		}
-		if err := encodeResponse(ctx, w, res); err != nil {
+		p := payload.(*ssaserver.PickUpDataPayload)
+		if err := encodeResponse(ctx, w, *p, res); err != nil {
 			eh(ctx, w, err)
 		}
 	})

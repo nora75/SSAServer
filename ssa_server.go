@@ -45,9 +45,6 @@ func NewSSAServer(logger *log.Logger) ssaserver.Service {
 
 // SSAへの新規登録
 // TODO
-// random generate group id
-// if not exists group id return false(error)
-// dirの作成
 func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPayload) (res *ssaserver.SsaResult, err error) {
 	res = &ssaserver.SsaResult{}
 	s.logger.Print("sSAServer.Register")
