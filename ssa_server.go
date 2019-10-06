@@ -1,13 +1,13 @@
-	package ssa
+package ssa
 
 import (
 	ssaserver "SSAServer/gen/ssa_server"
 	"context"
-	"log"
-	"regexp"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -26,10 +26,10 @@ var randSrc = rand.NewSource(time.Now().UnixNano())
 
 // for RandString
 const (
-    rs6Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    rs6LetterIdxBits = 6
-    rs6LetterIdxMask = 1<<rs6LetterIdxBits - 1
-    rs6LetterIdxMax = 63 / rs6LetterIdxBits
+	rs6Letters       = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+	rs6LetterIdxBits = 6
+	rs6LetterIdxMask = 1<<rs6LetterIdxBits - 1
+	rs6LetterIdxMax  = 63 / rs6LetterIdxBits
 )
 
 // SSAServer service example implementation.
@@ -56,11 +56,16 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	res.UserID = &Counter
 	Counter++
 	GroupName := "group-" + RandString(12)
-	if p.GroupID == nil || strings.EqualFold(*p.GroupID, ""){
+	if p.GroupID == nil || strings.EqualFold(*p.GroupID, "") {
 		res.GroupID = &GroupName
+
+		InsertUser(p.UserName, p.Password, p.Mail, &GroupName)
 	} else {
 		res.GroupID = p.GroupID
+
+		InsertUser(p.UserName, p.Password, p.Mail, p.GroupID)
 	}
+
 	return res, nil
 }
 
@@ -69,7 +74,7 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 // dbとの統合
 func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Login")
-    r := regexp.MustCompile(`pass`)
+	r := regexp.MustCompile(`pass`)
 	if r.MatchString(p.Password) {
 		return false, fmt.Errorf("パスワードが不正です。")
 	}
@@ -84,9 +89,9 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 	s.logger.Print("sSAServer.Change_group")
 	r := regexp.MustCompile(`group`)
 	if r.MatchString(p.GroupID) {
-		return true , nil
+		return true, nil
 	}
-	return false , fmt.Errorf("不正なグループ名です。")
+	return false, fmt.Errorf("不正なグループ名です。")
 }
 
 // 既存ユーザーの消去
@@ -112,29 +117,35 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	switch p.DataType {
-	case 0: mes = "日記"
-	case 1: mes = "録音"
-	default: return false, fmt.Errorf("不正なdata_typeです。")
+	case 0:
+		mes = "日記"
+	case 1:
+		mes = "録音"
+	default:
+		return false, fmt.Errorf("不正なdata_typeです。")
 	}
 	path := GetSavePath(p.GroupID, p.UserID)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err := os.MkdirAll(path, 0700)
-		if err !=  nil {
+		if err != nil {
 			return false, err
 		}
 	}
 	err = SaveFile(p.Data, path, p.DataName)
-	if err !=  nil {
+	if err != nil {
 		return false, err
 	}
 	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
-	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
+	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")) {
 		err = SaveFile(p.Image, path, *p.ImageName)
-		if err !=  nil {
+		if err != nil {
 			return false, err
 		}
 		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	}
+
+	InsertData(p.UserID, p.DataType, p.GroupID, p.DataName, p.ImageName, p.Title)
+
 	return true, nil
 }
 
@@ -157,16 +168,16 @@ func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnD
 func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataPayload) (res *ssaserver.SsaResult, err error) {
 	s.logger.Print("sSAServer.Pick_up_data")
 	res = &ssaserver.SsaResult{}
-	fmt.Println("GroupID:"+p.GroupID)
+	fmt.Println("GroupID:" + p.GroupID)
 	res.GroupID = &p.GroupID
-	fmt.Println("DataType:",p.DataType)
+	fmt.Println("DataType:", p.DataType)
 	res.DataType = &p.DataType
-	fmt.Println("DataUserID:",p.DataUserID)
-	fmt.Println("UserID:",p.UserID)
+	fmt.Println("DataUserID:", p.DataUserID)
+	fmt.Println("UserID:", p.UserID)
 	res.UserID = &p.UserID
-	fmt.Println("DataName:",p.DataName)
+	fmt.Println("DataName:", p.DataName)
 	res.DataName = &p.DataName
-	if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
+	if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")) {
 		fmt.Println(p.ImageName)
 		res.ImageName = p.ImageName
 	}
@@ -175,19 +186,19 @@ func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataP
 
 // RandString Return Random n length String
 func RandString(n int) string {
-    b := make([]byte, n)
-    cache, remain := randSrc.Int63(), rs6LetterIdxMax
-    for i := n-1; i >= 0; {
-        if remain == 0 {
-            cache, remain = randSrc.Int63(), rs6LetterIdxMax
-        }
-        idx := int(cache & rs6LetterIdxMask)
-        if idx < len(rs6Letters) {
-            b[i] = rs6Letters[idx]
-            i--
-        }
-        cache >>= rs6LetterIdxBits
-        remain--
-    }
-    return string(b)
+	b := make([]byte, n)
+	cache, remain := randSrc.Int63(), rs6LetterIdxMax
+	for i := n - 1; i >= 0; {
+		if remain == 0 {
+			cache, remain = randSrc.Int63(), rs6LetterIdxMax
+		}
+		idx := int(cache & rs6LetterIdxMask)
+		if idx < len(rs6Letters) {
+			b[i] = rs6Letters[idx]
+			i--
+		}
+		cache >>= rs6LetterIdxBits
+		remain--
+	}
+	return string(b)
 }
