@@ -73,28 +73,52 @@ type Data struct {
 	title      string `gorm:"size:255"`
 }
 
-func insertUser(userData User, db *gorm.DB) {
-	for _, user := range userData {
-		db.NewRecord(user)
-		db.Create(&user)
-	}
+func insertUser(userData User) {
+	db := connectGorm()
+	defer db.Close()
+
+	row := User{} // 構造体インスタンス化
+	row.user_name = userData.user_name
+	row.password = userData.password
+	row.mail = userData.mail
+	row.group_id = userData.group_id
+
+	db.Create(&row)
 }
 
-func insertData(dataData Data, db *gorm.DB) {
-	for _, data = range dataData {
-		db.NewRecord(data)
-		db.Create(&data)
-	}
+func insertData(dataData Data) {
+	db := connectGorm()
+	defer db.Close()
+
+	row := Data{}
+	row.data_type = dataData.data_type
+	row.group_id = dataData.group_id
+	row.data_name = dataData.data_name
+	row.image_name = dataData.image_name
+	row.title = dataData.title
+
+	db.Create(&row)
 }
 
 func insertUserData(UserName, PassWord, Mail string, GroupID *string) {
-	userData := User{user_name: UserName, password: PassWord, mail: Mail, group_id: *GroupID}
+	userData := User{
+		user_name: UserName,
+		password:  PassWord,
+		mail:      Mail,
+		group_id:  *GroupID,
+	}
 
-	insertUser(userData, db)
+	insertUser(userData)
 }
 
-func insertDataData(UserID, DataType int, GroupID, DataName, ImageName string, Title *string) {
-	dataData := Data{group_id: GroupID, id: UserID, title: *Title, data_name: DataName, image_name: ImageName, data_type: DataType}
+func insertDataData(GroupID, DataName, ImageName string, Title *string, DataType int) {
+	dataData := Data{
+		group_id:   GroupID,
+		title:      *Title,
+		data_name:  DataName,
+		image_name: ImageName,
+		data_type:  DataType,
+	}
 
-	insertData(dataData, db)
+	insertData(dataData)
 }
