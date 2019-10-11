@@ -50,35 +50,51 @@ func connectGorm() *gorm.DB {
 // Model base model definition, including fields `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`,
 // which could be embedded in your models
 type Model struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `sql:"index"`
+	id         uint `gorm:"primary_key"`
+	created_at time.Time
+	updated_at time.Time
+	deleted_at *time.Time `sql:"index"`
 }
 
 type User struct {
 	gorm.Model
-	UserName string `gorm:"size:255"`
-	PassWord string `gorm:"size:255"`
-	Mail     string `gorm:"size:255"`
-	GroupID  string `gorm:"size:255"`
+	user_name string `gorm:"size:255"`
+	password  string `gorm:"size:255"`
+	mail      string `gorm:"size:255"`
+	group_id  string `gorm:"size:255"`
 }
 
 type Data struct {
 	gorm.Model
-	DataType  int
-	GroupID   string `gorm:"size:255"`
-	DataName  string `gorm:"size:255"`
-	ImageName string `gorm:"size:255"`
-	Title     string `gorm:"size:255"`
+	data_type  int
+	group_id   string `gorm:"size:255"`
+	data_name  string `gorm:"size:255"`
+	image_name string `gorm:"size:255"`
+	title      string `gorm:"size:255"`
 }
 
-// UserID, DataType int, GroupID, DataName string, ImageName, Title *string
-
-func (u User) String() string {
-	return fmt.Sprintf("%s(%d)", u.UserName, u.PassWord, u.Mail, u.GroupID)
+func insertUser(userData User, db *gorm.DB) {
+	for _, user := range userData {
+		db.NewRecord(user)
+		db.Create(&user)
+	}
 }
 
-func (d Data) String() string {
-	return fmt.Sprintf("%s(%d)", d.GroupID, d.Title, d.DataName, d.ImageName, d.DataType)
+func insertData(dataData Data, db *gorm.DB) {
+	for _, data = range dataData {
+		db.NewRecord(data)
+		db.Create(&data)
+	}
+}
+
+func insertUserData(UserName, PassWord, Mail string, GroupID *string) {
+	userData := User{user_name: UserName, password: PassWord, mail: Mail, group_id: *GroupID}
+
+	insertUser(userData, db)
+}
+
+func insertDataData(UserID, DataType int, GroupID, DataName, ImageName string, Title *string) {
+	dataData := Data{group_id: GroupID, id: UserID, title: *Title, data_name: DataName, image_name: ImageName, data_type: DataType}
+
+	insertData(dataData, db)
 }
