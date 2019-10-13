@@ -60,11 +60,11 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	if p.GroupID == nil || strings.EqualFold(*p.GroupID, "") {
 		res.GroupID = &GroupName
 
-		InsertUser(p.UserName, p.Password, p.Mail, &GroupName)
+		InsertUserData(p.UserName, p.Password, p.Mail, &GroupName)
 	} else {
 		res.GroupID = p.GroupID
 
-		InsertUser(p.UserName, p.Password, p.Mail, p.GroupID)
+		InsertUserData(p.UserName, p.Password, p.Mail, p.GroupID)
 	}
 
 	return res, nil
@@ -79,6 +79,12 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 	if r.MatchString(p.Password) {
 		return false, fmt.Errorf("パスワードが不正です。")
 	}
+
+	auth := passwordAuthentication(p.UserID, p.Password)
+	if auth == false {
+		return false, fmt, Error("パスワードが違います")
+	}
+
 	return true, nil
 }
 
@@ -98,6 +104,8 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 	if err != nil {
 		return false, err
 	}
+	updateGroupID(p.UserID, p.GroupID, p.Password)
+
 	return true, nil
 }
 
@@ -119,6 +127,9 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 	// if err !=  nil {
 	// 	fmt.Println("An error occured when delete group dir:"+path)
 	// }
+
+	deleteUser(p.UserID, p.Password)
+
 	return true, nil
 }
 
@@ -150,7 +161,7 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	}
 
-	InsertData(p.UserID, p.DataType, p.GroupID, p.DataName, p.ImageName, p.Title)
+	InsertDataData(p.GroupID, p.DataName, p.ImageName, p.Title, p.Datatype)
 
 	return true, nil
 }
@@ -163,6 +174,10 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnDataListPayload) (res ssaserver.SsaResultCollection, view string, err error) {
 	s.logger.Print("sSAServer.Return_data_list")
 	view = "data_list_origin"
+
+	dataList := findAll()
+	// 表示わからん
+
 	return res, view, nil
 }
 
@@ -187,6 +202,10 @@ func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataP
 		fmt.Println("ImageName:", p.ImageName)
 		res.ImageName = p.ImageName
 	}
+
+	retData := findData(p.GroupID)
+	// 表示わからん
+
 	return res, nil
 }
 
