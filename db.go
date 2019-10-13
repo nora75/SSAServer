@@ -122,3 +122,47 @@ func insertDataData(GroupID, DataName, ImageName string, Title *string, DataType
 
 	insertData(dataData)
 }
+
+func deleteUser(UserID int, PassWord string) {
+	db := connectGorm()
+	defer db.Close()
+
+	result := passwordAuthentication(UserID, PassWord)
+	if result {
+		var user User
+		db.Where("id = ?", UserID).Delete(&user)
+	}
+}
+
+// func findAll() []User{
+
+// }
+
+func passwordAuthentication(UserID int, PassWord string) bool {
+	userStruct := retUserStruct(UserID)
+
+	if PassWord == userStruct.password {
+		return true
+	}
+	return false
+}
+
+func retUserStruct(UserID int) User {
+	db := connectGorm()
+	defer db.Close()
+
+	var user User
+	db.Where("id = ?", UserID).First(&user)
+
+	return user
+}
+
+func retDataStruct(DataID int) Data {
+	db := connectGorm()
+	defer db.Close()
+
+	var data Data
+	db.Where("id = ?", DataID).First(&data)
+
+	return data
+}
