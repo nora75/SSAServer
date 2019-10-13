@@ -134,9 +134,36 @@ func deleteUser(UserID int, PassWord string) {
 	}
 }
 
-// func findAll() []User{
+func updateGroupID(UserID int, GroupID, PassWord string) {
+	db := connectGorm()
+	defer db.Close()
 
-// }
+	result := passwordAuthentication(UserID, PassWord)
+	if result {
+		var user User
+		db.Model(&user).Where("id = ?", UserID).Update("group_id", GroupID)
+	}
+}
+
+func findAll() []Data {
+	db := connectGorm()
+	defer db.Close()
+
+	var allData []Data
+	db.Find(&allData)
+
+	return allData
+}
+
+func findData(GroupID int) []Data {
+	db := connectGorm()
+	defer db.Close()
+
+	var data []Data
+	db.Where("group_id = ?", GroupID).First(&data)
+
+	return data
+}
 
 func passwordAuthentication(UserID int, PassWord string) bool {
 	userStruct := retUserStruct(UserID)
