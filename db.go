@@ -32,7 +32,8 @@ func main() {
 	db := connectGorm()
 	defer db.Close()
 
-	db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{})
+	db.Set("gorm:table_options", "ENGINE = InnoDB")
+	db.AutoMigrate(&User{})
 }
 
 func connectGorm() *gorm.DB {
