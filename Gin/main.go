@@ -23,17 +23,33 @@ func main() {
 		groupID := c.Param("group_id")
 		dataUserID := c.Param("data_user_id")
 		dataName := c.PostForm("data_name")
-		dataType := c.PostForm("data_type")
+		// dataType := c.PostForm("data_type")
 		userID := c.PostForm("user_id")
-		imageName := c.DefaultPostForm("image_name", "")
-		c.JSON(http.StatusOK, gin.H{
-			"groupID": groupID,
-			"dataUserID": dataUserID,
-			"dataName": dataName,
-			"dataType": dataType,
-			"userID": userID,
-			"imageName": imageName,
-		})
+		// imageName := c.DefaultPostForm("image_name", "")
+		path := GetPickUpPath(groupID,dataUserID,dataName)
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			fmt.Println(os.Stderr, err)
+			os.Exit(1)
+		}
+		file, err := os.Open(path)
+		if err != nil {
+			panic("hoge")
+		}
+		fi, err := file.Stat()
+		if err != nil {
+			panic("hoge")
+		}
+		defer file.Close()
+		contentLength := fi.Size()
+		contentType := http.DetectContentType(b)
+
+		head := `attachment; filename="`+dataName+`"`
+		extraHeaders := map[string]string{
+			"Content-Disposition": head,
+		}
+
+		c.DataFromReader(http.StatusOK, contentLength, contentType, bufio.NewReader(file), extraHeaders)
 	})
 	r.GET("/PickUp", func(c *gin.Context) {
 		// path := GetPickUpPath(groupID, UserID, dataName,)
