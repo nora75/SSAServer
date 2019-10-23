@@ -9,7 +9,31 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-// コピペで構成されたクソコード :(
+// Model base model definition, including fields `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`,
+// which could be embedded in your models
+type Model struct {
+	id         uint `gorm:"primary_key"`
+	created_at time.Time
+	updated_at time.Time
+	deleted_at *time.Time `sql:"index"`
+}
+
+type User struct {
+	gorm.Model
+	User_name string
+	Password  string
+	Mail      string
+	Group_id  string
+}
+
+type Data struct {
+	gorm.Model
+	Data_type  int
+	Group_id   string
+	Data_name  string
+	Image_name string
+	Title      string
+}
 
 const (
 	// DB種別
@@ -48,30 +72,18 @@ func connectGorm() *gorm.DB {
 	return db
 }
 
-// Model base model definition, including fields `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`,
-// which could be embedded in your models
-type Model struct {
-	id         uint `gorm:"primary_key"`
-	created_at time.Time
-	updated_at time.Time
-	deleted_at *time.Time `sql:"index"`
-}
+func connectGorm() *gorm.DB {
+	connectTemplate := "%s:%s@%s/%s"
+	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName)
+	db, err := gorm.Open(Dialect, connect+"?parseTime=true")
 
-type User struct {
-	gorm.Model
-	user_name string `gorm:"size:255"`
-	password  string `gorm:"size:255"`
-	mail      string `gorm:"size:255"`
-	group_id  string `gorm:"size:255"`
-}
+	if err != nil {
+		log.Println(err.Error())
+	}
 
-type Data struct {
-	gorm.Model
-	data_type  int
-	group_id   string `gorm:"size:255"`
-	data_name  string `gorm:"size:255"`
-	image_name string `gorm:"size:255"`
-	title      string `gorm:"size:255"`
+	db.LogMode(true)
+
+	return db
 }
 
 func insertUser(userData User) {
@@ -79,11 +91,12 @@ func insertUser(userData User) {
 	defer db.Close()
 
 	row := User{} // 構造体インスタンス化
-	row.user_name = userData.user_name
-	row.password = userData.password
-	row.mail = userData.mail
-	row.group_id = userData.group_id
+	row.User_name = userData.User_name
+	row.Password = userData.Password
+	row.Mail = userData.Mail
+	row.Group_id = userData.Group_id
 
+	db.NewRecord(row)
 	db.Create(&row)
 }
 
@@ -92,33 +105,33 @@ func insertData(dataData Data) {
 	defer db.Close()
 
 	row := Data{}
-	row.data_type = dataData.data_type
-	row.group_id = dataData.group_id
-	row.data_name = dataData.data_name
-	row.image_name = dataData.image_name
-	row.title = dataData.title
+	row.Data_type = dataData.Data_type
+	row.Group_id = dataData.Group_id
+	row.Data_name = dataData.Data_name
+	row.Image_name = dataData.Image_name
+	row.Title = dataData.Title
 
 	db.Create(&row)
 }
 
-func insertUserData(UserName, PassWord, Mail string, GroupID *string) {
+func insertUserData(UserName, PassWord, Mail string, GroupID string) {
 	userData := User{
-		user_name: UserName,
-		password:  PassWord,
-		mail:      Mail,
-		group_id:  *GroupID,
+		User_name: UserName,
+		Password:  PassWord,
+		Mail:      Mail,
+		Group_id:  GroupID,
 	}
 
 	insertUser(userData)
 }
 
-func insertDataData(GroupID, DataName, ImageName string, Title *string, DataType int) {
+func insertDataData(GroupID, DataName, ImageName string, Title string, DataType int) {
 	dataData := Data{
-		group_id:   GroupID,
-		title:      *Title,
-		data_name:  DataName,
-		image_name: ImageName,
-		data_type:  DataType,
+		Group_id:   GroupID,
+		Title:      Title,
+		Data_name:  DataName,
+		Image_name: ImageName,
+		Data_type:  DataType,
 	}
 
 	insertData(dataData)
@@ -146,43 +159,40 @@ func updateGroupID(UserID int, GroupID, PassWord string) {
 	}
 }
 
-func findAll() []Data {
-	db := connectGorm()
-	defer db.Close()
-
-	var allData []Data
-	db.Find(&allData)
-
-	return allData
-}
-
-func findData(GroupID int) []Data {
+func findAllDataInGroup(GroupID string) []Data {
 	db := connectGorm()
 	defer db.Close()
 
 	var data []Data
-	db.Where("group_id = ?", GroupID).First(&data)
+	db.Where("group_id = ?", GroupID).Find(&data)
+
+	return data
+}
+
+func findData(DataID int) []Data {
+	db := connectGorm()
+	defer db.Close()
+
+	var data []Data
+	db.Where("id = ?", DataID).First(&data)
 
 	return data
 }
 
 func passwordAuthentication(UserID int, PassWord string) bool {
-	userStruct := retUserStruct(UserID)
-
-	if PassWord == userStruct.password {
-		return true
-	}
-	return false
-}
-
-func retUserStruct(UserID int) User {
 	db := connectGorm()
 	defer db.Close()
 
 	var user User
 	db.Where("id = ?", UserID).First(&user)
 
-	return user
+	if PassWord == user.Password {
+		fmt.Printf("PW Auth success !!")
+
+		return true
+	}
+	fmt.Printf("PW Auth Failed...")
+	return false
 }
 
 func retDataStruct(DataID int) Data {
