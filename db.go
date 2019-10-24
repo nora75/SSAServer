@@ -171,14 +171,16 @@ func findAllDataInGroup(GroupID string) []string {
 	return retData
 }
 
-func findData(DataID int) []Data {
+func findData(DataID int) []string {
 	db := connectGorm()
 	defer db.Close()
 
 	var data []Data
 	db.Where("id = ?", DataID).First(&data)
 
-	return data
+	retData := retDataList(data)
+
+	return retData
 }
 
 func passwordAuthentication(UserID int, PassWord string) bool {
