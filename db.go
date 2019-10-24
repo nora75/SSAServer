@@ -63,18 +63,6 @@ func main() {
 func connectGorm() *gorm.DB {
 	connectTemplate := "%s:%s@%s/%s"
 	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName)
-	db, err := gorm.Open(Dialect, connect)
-
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	return db
-}
-
-func connectGorm() *gorm.DB {
-	connectTemplate := "%s:%s@%s/%s"
-	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName)
 	db, err := gorm.Open(Dialect, connect+"?parseTime=true")
 
 	if err != nil {
