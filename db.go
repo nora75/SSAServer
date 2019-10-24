@@ -159,14 +159,16 @@ func updateGroupID(UserID int, GroupID, PassWord string) {
 	}
 }
 
-func findAllDataInGroup(GroupID string) []Data {
+func findAllDataInGroup(GroupID string) []string {
 	db := connectGorm()
 	defer db.Close()
 
 	var data []Data
 	db.Where("group_id = ?", GroupID).Find(&data)
 
-	return data
+	retData := retDataList(data)
+
+	return retData
 }
 
 func findData(DataID int) []Data {
@@ -203,4 +205,14 @@ func retDataStruct(DataID int) Data {
 	db.Where("id = ?", DataID).First(&data)
 
 	return data
+}
+
+func retDataList(data []Data) []string {
+	var ret []string
+
+	for _, row := range data {
+		ret = append(ret, fmt.Sprintf("%+v\n", row))
+	}
+
+	return ret
 }
