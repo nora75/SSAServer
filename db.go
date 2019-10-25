@@ -12,43 +12,48 @@ import (
 // Model base model definition, including fields `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`,
 // which could be embedded in your models
 type Model struct {
-	id         uint `gorm:"primary_key"`
-	created_at time.Time
-	updated_at time.Time
-	deleted_at *time.Time `sql:"index"`
+	ID         uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
 }
 
+// User struct define users table's struct
 type User struct {
 	gorm.Model
-	User_name string
+	UserName string
 	Password  string
 	Mail      string
-	Group_id  string
+	GroupID  string
 }
 
+// Data struct define data table's struct
 type Data struct {
 	gorm.Model
-	Data_type  int
-	Group_id   string
-	Data_name  string
-	Image_name string
+	UserID int `grom:"primary_key:true;association_foreignkey:ID"`
+	// UserID string `grom:"primary_key:true;association_jointable_foreignkey:ID"`
+	GroupID   string
+	DataName  string
+	ImageName string
 	Title      string
+	DataType  int
 }
 
+// DB Connection Information
 const (
-	// DB種別
+	// Dialect define DB type
 	Dialect = "mysql"
 
-	// ユーザー名
+	// DBUser define connected user name
 	DBUser = "root"
 
-	// パスワード
+	// DBPass define DB User's password
 	DBPass = ""
 
-	// プロトコル
+	// DBProtocol define connect method
 	DBProtocol = "tcp(127.0.0.1:3306)"
 
-	// DB名
+	// DBName define connect DB name
 	DBName = "SSADB"
 )
 
@@ -56,17 +61,18 @@ func main() {
 	db := connectGorm()
 	defer db.Close()
 
-	db.Set("gorm:table_options", "ENGINE = InnoDB")
-	db.AutoMigrate(&User{})
+	db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{},&Data{})
 }
 
+// connect to db
 func connectGorm() *gorm.DB {
 	connectTemplate := "%s:%s@%s/%s"
 	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName)
 	db, err := gorm.Open(Dialect, connect+"?parseTime=true")
+	defer db.Close()
 
 	if err != nil {
-		log.Println(err.Error())
+		log.Println(err)
 	}
 
 	db.LogMode(true)
@@ -74,122 +80,169 @@ func connectGorm() *gorm.DB {
 	return db
 }
 
-func insertUser(userData User) {
+// insert data to users tale
+func insertUser(userData User) error {
 	db := connectGorm()
-	defer db.Close()
 
 	row := User{} // 構造体インスタンス化
-	row.User_name = userData.User_name
+	row.UserName = userData.UserName
 	row.Password = userData.Password
 	row.Mail = userData.Mail
-	row.Group_id = userData.Group_id
+	row.GroupID = userData.GroupID
 
-	db.NewRecord(row)
-	db.Create(&row)
+	flag := db.NewRecord(row)
+	if !flag {
+		return fmt.Errorf("Can't create new record")
+	}
+
+	result := db.Create(&row)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
-func insertData(dataData Data) {
+// insert data to data table
+func insertData(dataData Data) error {
 	db := connectGorm()
-	defer db.Close()
 
 	row := Data{}
-	row.Data_type = dataData.Data_type
-	row.Group_id = dataData.Group_id
-	row.Data_name = dataData.Data_name
-	row.Image_name = dataData.Image_name
+	row.UserID = dataData.UserID
+	row.GroupID = dataData.GroupID
+	row.DataName = dataData.DataName
+	row.ImageName = dataData.ImageName
 	row.Title = dataData.Title
+	row.DataType = dataData.DataType
 
-	db.Create(&row)
+	result := db.Create(&row)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
-func insertUserData(UserName, PassWord, Mail string, GroupID string) {
+// InsertUserData insert user data to users table
+func InsertUserData(UserName string, PassWord string, Mail string, GroupID string) error {
 	userData := User{
-		User_name: UserName,
+		UserName: UserName,
 		Password:  PassWord,
 		Mail:      Mail,
-		Group_id:  GroupID,
+		GroupID:  GroupID,
 	}
 
-	insertUser(userData)
+	err := insertUser(userData)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func insertDataData(GroupID, DataName, ImageName string, Title string, DataType int) {
+// InsertDataData insert data data to data table
+func InsertDataData(UserID int, GroupID string, DataName string, ImageName string, Title string, DataType int) error {
 	dataData := Data{
-		Group_id:   GroupID,
+		UserID:   UserID,
+		GroupID:   GroupID,
 		Title:      Title,
-		Data_name:  DataName,
-		Image_name: ImageName,
-		Data_type:  DataType,
+		DataName:  DataName,
+		ImageName: ImageName,
+		DataType:  DataType,
 	}
 
-	insertData(dataData)
-}
-
-func deleteUser(UserID int, PassWord string) {
-	db := connectGorm()
-	defer db.Close()
-
-	result := passwordAuthentication(UserID, PassWord)
-	if result {
-		var user User
-		db.Where("id = ?", UserID).Delete(&user)
+	err := insertData(dataData)
+	if err != nil {
+		return err
 	}
+	return nil
 }
 
-func updateGroupID(UserID int, GroupID, PassWord string) {
+// DeleteUser delete user on database
+func DeleteUser(UserID int, PassWord string) error {
 	db := connectGorm()
-	defer db.Close()
 
-	result := passwordAuthentication(UserID, PassWord)
-	if result {
-		var user User
-		db.Model(&user).Where("id = ?", UserID).Update("group_id", GroupID)
+	err := PasswordAuthentication(UserID, PassWord)
+	if err != nil {
+		return err
 	}
+	var user User
+	result := db.Where("id = ?", UserID).Delete(&user)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
-func findAllDataInGroup(GroupID string) []string {
+// UpdateGroupID update database's user's GroupID
+func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 	db := connectGorm()
-	defer db.Close()
+
+	err := PasswordAuthentication(UserID, PassWord)
+	if err != nil{
+		return err
+	}
+
+	var user User
+	result := db.Model(&user).Where("id = ?", UserID).Update("group_id", GroupID)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// FindAllDataInGroup return all data information of GroupID
+func FindAllDataInGroup(GroupID string) ([]string, error) {
+	db := connectGorm()
 
 	var data []Data
-	db.Where("group_id = ?", GroupID).Find(&data)
+	result := db.Where("group_id = ?", GroupID).Find(&data)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
 	retData := retDataList(data)
 
-	return retData
+	return retData, nil
 }
 
-func findData(DataID int) []string {
+// FindData return a data information of DataID
+func FindData(DataID int) ([]string, error) {
 	db := connectGorm()
-	defer db.Close()
 
 	var data []Data
-	db.Where("id = ?", DataID).First(&data)
+	result := db.Where("id = ?", DataID).First(&data)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
 	retData := retDataList(data)
 
-	return retData
+	return retData, nil
 }
 
-func passwordAuthentication(UserID int, PassWord string) bool {
+// PasswordAuthentication return success authentication of password
+func PasswordAuthentication(UserID int, PassWord string) error {
 	db := connectGorm()
-	defer db.Close()
 
 	var user User
 	db.Where("id = ?", UserID).First(&user)
 
-	if PassWord == user.Password {
-		fmt.Printf("PW Auth success !!")
+	if PassWord != user.Password {
+		fmt.Printf("PW Auth Failed...")
 
-		return true
+		return fmt.Errorf("PW Auth Failed")
 	}
-	fmt.Printf("PW Auth Failed...")
-	return false
+	fmt.Printf("PW Auth success !!")
+	return nil
 }
 
 func retDataStruct(DataID int) Data {
 	db := connectGorm()
-	defer db.Close()
 
 	var data Data
 	db.Where("id = ?", DataID).First(&data)

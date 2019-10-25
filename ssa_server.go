@@ -59,12 +59,13 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	GroupName := "group-" + RandString(12)
 	if p.GroupID == nil || strings.EqualFold(*p.GroupID, "") {
 		res.GroupID = &GroupName
-
-		InsertUserData(p.UserName, p.Password, p.Mail, &GroupName)
 	} else {
 		res.GroupID = p.GroupID
+	}
+	err = InsertUserData(*res.UserName, *res.Password, *res.Mail, *res.GroupID)
 
-		InsertUserData(p.UserName, p.Password, p.Mail, p.GroupID)
+	if err != nil {
+		return res, err
 	}
 
 	return res, nil
@@ -80,9 +81,9 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 		return false, fmt.Errorf("パスワードが不正です。")
 	}
 
-	auth := passwordAuthentication(p.UserID, p.Password)
-	if auth == false {
-		return false, fmt, Error("パスワードが違います")
+	err = PasswordAuthentication(p.UserID, p.Password)
+	if err != nil {
+		return false, err
 	}
 
 	return true, nil
@@ -104,7 +105,10 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 	if err != nil {
 		return false, err
 	}
-	updateGroupID(p.UserID, p.GroupID, p.Password)
+	err = UpdateGroupID(p.UserID, p.GroupID, p.Password)
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
@@ -128,7 +132,10 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 	// 	fmt.Println("An error occured when delete group dir:"+path)
 	// }
 
-	deleteUser(p.UserID, p.Password)
+	err = DeleteUser(p.UserID, p.Password)
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
@@ -161,7 +168,10 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	}
 
-	InsertDataData(p.GroupID, p.DataName, p.ImageName, p.Title, p.Datatype)
+	err = InsertDataData(p.UserID, p.GroupID, p.DataName, *p.ImageName, *p.Title, p.DataType)
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
@@ -175,7 +185,7 @@ func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnD
 	s.logger.Print("sSAServer.Return_data_list")
 	view = "data_list_origin"
 
-	dataList := findAll()
+	// res, err = findAllDataInGroup(p.GroupID)
 	// 表示わからん
 
 	return res, view, nil
@@ -203,7 +213,7 @@ func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataP
 		res.ImageName = p.ImageName
 	}
 
-	retData := findData(p.GroupID)
+	// retData := findData(p.GroupID)
 	// 表示わからん
 
 	return res, nil
