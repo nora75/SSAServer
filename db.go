@@ -21,22 +21,21 @@ type Model struct {
 // User struct define users table's struct
 type User struct {
 	gorm.Model
-	UserName string
-	Password  string
-	Mail      string
-	GroupID  string
+	UserName string `gorm:"not null"`
+	Password  string `gorm:"not null"`
+	Mail      string `gorm:"not null"`
+	GroupID  string `gorm:"not null"`
 }
 
 // Data struct define data table's struct
 type Data struct {
 	gorm.Model
-	UserID int `grom:"primary_key:true;association_foreignkey:ID"`
-	// UserID string `grom:"primary_key:true;association_jointable_foreignkey:ID"`
-	GroupID   string
-	DataName  string `gorm:"primary_key"`
+	UserID int
+	GroupID   string `gorm:"not null"`
+	DataName  string
 	ImageName string
 	Title      string
-	DataType  int
+	DataType  int `gorm:"not null"`
 }
 
 // DB Connection Information
