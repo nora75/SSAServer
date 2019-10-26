@@ -33,7 +33,7 @@ type Data struct {
 	UserID int `grom:"primary_key:true;association_foreignkey:ID"`
 	// UserID string `grom:"primary_key:true;association_jointable_foreignkey:ID"`
 	GroupID   string
-	DataName  string
+	DataName  string `gorm:"primary_key"`
 	ImageName string
 	Title      string
 	DataType  int
@@ -69,7 +69,6 @@ func connectGorm() *gorm.DB {
 	connectTemplate := "%s:%s@%s/%s"
 	connect := fmt.Sprintf(connectTemplate, DBUser, DBPass, DBProtocol, DBName)
 	db, err := gorm.Open(Dialect, connect+"?parseTime=true")
-	defer db.Close()
 
 	if err != nil {
 		log.Println(err)
@@ -83,6 +82,7 @@ func connectGorm() *gorm.DB {
 // insert data to users tale
 func insertUser(userData User) error {
 	db := connectGorm()
+	defer db.Close()
 
 	row := User{} // 構造体インスタンス化
 	row.UserName = userData.UserName
@@ -106,6 +106,7 @@ func insertUser(userData User) error {
 // insert data to data table
 func insertData(dataData Data) error {
 	db := connectGorm()
+	defer db.Close()
 
 	row := Data{}
 	row.UserID = dataData.UserID
@@ -160,6 +161,7 @@ func InsertDataData(UserID int, GroupID string, DataName string, ImageName strin
 // DeleteUser delete user on database
 func DeleteUser(UserID int, PassWord string) error {
 	db := connectGorm()
+	defer db.Close()
 
 	err := PasswordAuthentication(UserID, PassWord)
 	if err != nil {
@@ -178,6 +180,7 @@ func DeleteUser(UserID int, PassWord string) error {
 // UpdateGroupID update database's user's GroupID
 func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 	db := connectGorm()
+	defer db.Close()
 
 	err := PasswordAuthentication(UserID, PassWord)
 	if err != nil{
@@ -196,6 +199,7 @@ func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 // FindAllDataInGroup return all data information of GroupID
 func FindAllDataInGroup(GroupID string) ([]string, error) {
 	db := connectGorm()
+	defer db.Close()
 
 	var data []Data
 	result := db.Where("group_id = ?", GroupID).Find(&data)
@@ -212,6 +216,7 @@ func FindAllDataInGroup(GroupID string) ([]string, error) {
 // FindData return a data information of DataID
 func FindData(DataID int) ([]string, error) {
 	db := connectGorm()
+	defer db.Close()
 
 	var data []Data
 	result := db.Where("id = ?", DataID).First(&data)
@@ -228,6 +233,7 @@ func FindData(DataID int) ([]string, error) {
 // PasswordAuthentication return success authentication of password
 func PasswordAuthentication(UserID int, PassWord string) error {
 	db := connectGorm()
+	defer db.Close()
 
 	var user User
 	db.Where("id = ?", UserID).First(&user)
@@ -243,6 +249,7 @@ func PasswordAuthentication(UserID int, PassWord string) error {
 
 func retDataStruct(DataID int) Data {
 	db := connectGorm()
+	defer db.Close()
 
 	var data Data
 	db.Where("id = ?", DataID).First(&data)
