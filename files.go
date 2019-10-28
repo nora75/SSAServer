@@ -20,7 +20,7 @@ func GetLogPath() (string) {
 func SaveFile(data []byte,path string, name string) error {
 	err := checkFile(path)
 	if err != nil {
-		err = createUserDir(path)
+		err = CreateUserDir(path)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %s", err)
 		}
@@ -136,8 +136,8 @@ func checkFile(path string) error {
 	return nil
 }
 
-// createUserDir  is create new user dir
-func createUserDir(path string) error {
+// CreateUserDir  is create new user dir
+func CreateUserDir(path string) error {
 	if err := os.MkdirAll(path, 0700); err !=  nil {
 		return err
 	}
