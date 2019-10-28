@@ -30,12 +30,23 @@ type User struct {
 // Data struct define data table's struct
 type Data struct {
 	gorm.Model
-	UserID int
+	UserID int `grom:"primary_key:true"`
 	GroupID   string `gorm:"not null"`
-	DataName  string
+	DataName  string `gorm:"primary_key"`
 	ImageName string
 	Title      string
 	DataType  int `gorm:"not null"`
+}
+
+// Result struct define return data's list
+type Result struct {
+	UserID int
+	UserName string
+	GroupID   string
+	DataName  string
+	ImageName string
+	Title      string
+	DataType  int
 }
 
 // DB Connection Information
@@ -196,20 +207,18 @@ func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 }
 
 // FindAllDataInGroup return all data information of GroupID
-func FindAllDataInGroup(GroupID string) ([]string, error) {
+func FindAllDataInGroup(GroupID string) ([]Result, error) {
 	db := connectGorm()
 	defer db.Close()
 
-	var data []Data
-	result := db.Where("group_id = ?", GroupID).Find(&data)
-
-	if result.Error != nil {
-		return nil, result.Error
+	var ret []Result
+	res := db.Table("users").Select("data.user_id, users.user_name, data.group_id, data.data_name, data.image_name, data.title, data.data_type").Joins("left join data on data.user_id = users.id").Scan(&ret)
+	if res.Error != nil {
+		fmt.Println("Error")
+		return nil, res.Error
 	}
 
-	retData := retDataList(data)
-
-	return retData, nil
+	return ret, nil
 }
 
 // FindData return a data information of DataID
