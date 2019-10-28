@@ -27,7 +27,7 @@ paths:
         schema:
           $ref: '#/definitions/SSAServerLoginRequestBody'
           required:
-          - mail
+          - user_id
           - password
       responses:
         "200":
@@ -411,19 +411,20 @@ definitions:
     title: SSAServerLoginRequestBody
     type: object
     properties:
-      mail:
-        type: string
-        description: User mail-address
-        example: hoge@hoge.com
       password:
         type: string
         description: User Password
         example: password
+      user_id:
+        type: integer
+        description: User ID
+        example: 125434
+        format: int64
     example:
-      mail: hoge@hoge.com
       password: password
+      user_id: 125434
     required:
-    - mail
+    - user_id
     - password
   SSAServerPickUpDataInvalidDataNameResponseBody:
     title: 'Mediatype identifier: application/vnd.ssa.error; view=default'
