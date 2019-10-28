@@ -52,8 +52,7 @@ func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPa
 		case "Image":
 			ret.Image = slurp
 		default:
-			mes := part.FormName() + "' is invalid form data"
-			return fmt.Errorf(mes)
+			break
 		}
 	}
 	*p = server.NewSaveDataPayload(ret,"hoge")

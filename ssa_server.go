@@ -82,7 +82,7 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
 	r := regexp.MustCompile(`^group-`)
-	if r.MatchString(p.GroupID) {
+	if r.MatchString(p.Password) {
 		return false , fmt.Errorf("不正なグループ名です。")
 	}
 	// oldpath := GetUserDirPath(p.GroupID, p.UserID)
