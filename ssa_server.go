@@ -68,6 +68,13 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 		return res, err
 	}
 
+	path := GetUserDirPath(*res.GroupID, *res.UserID)
+	err = CreateUserDir(path)
+
+	if err != nil {
+		return res, err
+	}
+
 	return res, nil
 }
 
@@ -81,10 +88,10 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 		return false, fmt.Errorf("パスワードが不正です。")
 	}
 
-	err = PasswordAuthentication(p.UserID, p.Password)
-	if err != nil {
-		return false, err
-	}
+	// err = PasswordAuthentication(p.UserID, p.Password)
+	// if err != nil {
+	// 	return false, err
+	// }
 
 	return true, nil
 }
