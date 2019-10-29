@@ -90,7 +90,7 @@ func connectGorm() *gorm.DB {
 }
 
 // insert data to users tale
-func insertUser(userData User) error {
+func insertUser(userData User) (int, error) {
 	db := connectGorm()
 	defer db.Close()
 
@@ -102,15 +102,17 @@ func insertUser(userData User) error {
 
 	flag := db.NewRecord(row)
 	if !flag {
-		return fmt.Errorf("Can't create new record")
+		return 0, fmt.Errorf("Can't create new record")
 	}
 
 	result := db.Create(&row)
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
 
-	return nil
+	id := int(result.Value.(*User).Model.ID)
+
+	return id, nil
 }
 
 // insert data to data table
@@ -135,7 +137,7 @@ func insertData(dataData Data) error {
 }
 
 // InsertUserData insert user data to users table
-func InsertUserData(UserName string, PassWord string, Mail string, GroupID string) error {
+func InsertUserData(UserName string, PassWord string, Mail string, GroupID string) (int, error) {
 	userData := User{
 		UserName: UserName,
 		Password:  PassWord,
@@ -143,11 +145,11 @@ func InsertUserData(UserName string, PassWord string, Mail string, GroupID strin
 		GroupID:  GroupID,
 	}
 
-	err := insertUser(userData)
+	id, err := insertUser(userData)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
 
 // InsertDataData insert data data to data table
@@ -212,7 +214,8 @@ func FindAllDataInGroup(GroupID string) ([]Result, error) {
 	defer db.Close()
 
 	var ret []Result
-	res := db.Table("users").Select("data.user_id, users.user_name, data.group_id, data.data_name, data.image_name, data.title, data.data_type").Joins("left join data on data.user_id = users.id").Scan(&ret)
+	subq := db.Select("*").Table("data").Where("group_id = ?", GroupID).SubQuery()
+	res := db.Table("users").Select("t1.user_id, users.user_name, t1.group_id, t1.data_name, t1.image_name, t1.title, t1.data_type").Joins("inner join ? as t1 on t1.user_id = users.id", subq).Scan(&ret)
 	if res.Error != nil {
 		fmt.Println("Error")
 		return nil, res.Error
