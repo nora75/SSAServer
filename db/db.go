@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"time"
+	"strconv"
 
 	// ORM
 	"github.com/jinzhu/gorm"
@@ -56,7 +57,7 @@ const (
 	Dialect = "mysql"
 
 	// DBUser define connected user name
-	DBUser = "root"
+	DBUser = ""
 
 	// DBPass define DB User's password
 	DBPass = ""
@@ -65,7 +66,7 @@ const (
 	DBProtocol = "tcp(127.0.0.1:3306)"
 
 	// DBName define connect DB name
-	DBName = "SSADB"
+	DBName = ""
 )
 
 // check connection and auto create tables if not available
@@ -105,6 +106,12 @@ func insertUser(userData User) (int, error) {
 		return 0, err
 	}
 
+	var users User
+	result := db.Table("users").Where("mail = ?", userData.Mail).Scan(&users)
+	if users.ID != 0  {
+		return 0, fmt.Errorf("Already current mail address is registered")
+	}
+
 	row := User{} // 構造体インスタンス化
 	row.UserName = userData.UserName
 	row.Password = userData.Password
@@ -116,7 +123,7 @@ func insertUser(userData User) (int, error) {
 		return 0, fmt.Errorf("Can't create new record")
 	}
 
-	result := db.Create(&row)
+	result = db.Create(&row)
 	if result.Error != nil {
 		return 0, result.Error
 	}
@@ -304,11 +311,11 @@ func passwordAuthentication(UserID int, PassWord string) error {
 	db.Where("id = ?", UserID).First(&user)
 
 	if PassWord != user.Password {
-		fmt.Printf("PW Auth Failed...")
+		fmt.Printf("User: " + strconv.Itoa(UserID) + " PW Auth Failed")
 
 		return fmt.Errorf("PW Auth Failed")
 	}
-	fmt.Printf("PW Auth success !!")
+	fmt.Printf("User: " + strconv.Itoa(UserID) + " PW Auth success !!")
 	return nil
 }
 
