@@ -69,8 +69,8 @@ const (
 	DBName = ""
 )
 
-// check connection and auto create tables if not available
-func main() {
+// InitDB check connection and auto create tables if not available
+func InitDB() {
 	db, err := connectGorm()
 	defer db.Close()
 

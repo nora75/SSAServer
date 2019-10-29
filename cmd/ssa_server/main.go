@@ -4,6 +4,7 @@ import (
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 	ssa "SSAServer"
 	ssaserver "SSAServer/gen/ssa_server"
+	db "SSAServer/db"
 	"context"
 	"flag"
 	"fmt"
@@ -98,6 +99,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host += ":443"
 			}
+			db.InitDB()
 			handleHTTPServer(ctx, u, sSAServerEndpoints, &wg, errc, logger, *dbgF)
 		}
 
