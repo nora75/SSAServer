@@ -30,8 +30,8 @@ type RegisterRequestBody struct {
 // LoginRequestBody is the type of the "SSAServer" service "Login" endpoint
 // HTTP request body.
 type LoginRequestBody struct {
-	// User ID
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
+	// User mail-address
+	Mail *string `form:"mail,omitempty" json:"mail,omitempty" xml:"mail,omitempty"`
 	// User Password
 	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
@@ -679,7 +679,7 @@ func NewRegisterPayload(body *RegisterRequestBody) *ssaserver.RegisterPayload {
 // NewLoginPayload builds a SSAServer service Login endpoint payload.
 func NewLoginPayload(body *LoginRequestBody) *ssaserver.LoginPayload {
 	v := &ssaserver.LoginPayload{
-		UserID:   *body.UserID,
+		Mail:     *body.Mail,
 		Password: *body.Password,
 	}
 	return v
@@ -764,11 +764,14 @@ func ValidateRegisterRequestBody(body *RegisterRequestBody) (err error) {
 
 // ValidateLoginRequestBody runs the validations defined on LoginRequestBody
 func ValidateLoginRequestBody(body *LoginRequestBody) (err error) {
-	if body.UserID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("user_id", "body"))
+	if body.Mail == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("mail", "body"))
 	}
 	if body.Password == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("password", "body"))
+	}
+	if body.Mail != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.mail", *body.Mail, goa.FormatEmail))
 	}
 	return
 }

@@ -49,11 +49,16 @@ func BuildLoginPayload(sSAServerLoginBody string) (*ssaserver.LoginPayload, erro
 	{
 		err = json.Unmarshal([]byte(sSAServerLoginBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"password\": \"password\",\n      \"user_id\": 125434\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"mail\": \"hoge@hoge.com\",\n      \"password\": \"password\"\n   }'")
+		}
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.mail", body.Mail, goa.FormatEmail))
+
+		if err != nil {
+			return nil, err
 		}
 	}
 	v := &ssaserver.LoginPayload{
-		UserID:   body.UserID,
+		Mail:     body.Mail,
 		Password: body.Password,
 	}
 	return v, nil

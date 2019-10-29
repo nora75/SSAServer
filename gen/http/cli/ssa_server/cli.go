@@ -243,8 +243,8 @@ SSAへのログイン
 
 Example:
     `+os.Args[0]+` ssa-server login --body '{
-      "password": "password",
-      "user_id": 125434
+      "mail": "hoge@hoge.com",
+      "password": "password"
    }'
 `, os.Args[0])
 }
