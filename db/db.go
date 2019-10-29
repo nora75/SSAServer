@@ -215,35 +215,37 @@ func DeleteUser(UserID int, PassWord string) error {
 }
 
 // UpdateGroupID update database's user's GroupID
-func UpdateGroupID(UserID int, GroupID string, PassWord string) (oldgid string, err error) {
+func UpdateGroupID(UserID int, GroupID string, PassWord string) (gid string, err error) {
 	db, err := connectGorm()
 	defer db.Close()
 	if err != nil {
 		return "", err
 	}
 
-	oldgid, err = findGroupIDbyUserID(UserID)
+	gid, err = findGroupIDbyUserID(UserID)
+	if err != nil {
+		return
+	}
 
 	err = passwordAuthentication(UserID, PassWord)
 	if err != nil {
 		return
 	}
 
-	err = updateUserTableGroupID(db, UserID, GroupID)
+	err = updateUserTableGroupID(UserID, GroupID)
 	if err != nil {
 		return
 	}
-	var datas Data
-	result := db.Model(&datas).Where("user_id = ?", UserID).Update("group_id", GroupID)
+	var data Data
+	result := db.Model(&data).Where("user_id = ?", UserID).Update("group_id", GroupID)
 	if result.Error != nil {
 		if err != nil {
 			return
 		}
-		_ = updateUserTableGroupID(db, UserID, oldgid)
+		_ = updateUserTableGroupID(UserID, gid)
 		err = result.Error
 		return
 	}
-
 	return
 }
 
@@ -367,17 +369,23 @@ func findGroupIDbyUserID(UserID int) (string, error) {
 		return "", err
 	}
 
-	var users User
-	result := db.Table("users").Select("group_id").Where("user_id = ?", UserID).Scan(&users)
+	var user User
+	result := db.Where("id = ?", UserID).First(&user)
 	if result.Error != nil {
 		return "", result.Error
 	}
-	gid := string(users.GroupID)
+	gid := string(user.GroupID)
 	return gid, nil
 }
 
 // updateUserTableGroupID update group id of user tale
-func updateUserTableGroupID(db *gorm.DB, UserID int, GroupID string) error {
+func updateUserTableGroupID(UserID int, GroupID string) error {
+	db, err := connectGorm()
+	defer db.Close()
+	if err != nil {
+		return err
+	}
+
 	var user User
 	result := db.Model(&user).Where("id = ?", UserID).Update("group_id", GroupID)
 	if result.Error != nil {
