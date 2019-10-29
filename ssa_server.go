@@ -68,8 +68,7 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	}
 	res.UserID = &id
 
-	path := GetUserDirPath(*res.GroupID, *res.UserID)
-	err = CreateUserDir(path)
+	err = CreateUserDir(*res.GroupID, *res.UserID)
 
 	if err != nil {
 		return res, err
@@ -104,10 +103,13 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 		return false, err
 	}
 
-	oldpath := GetUserDirPath(oldGroupID, p.UserID)
-	newpath := GetUserDirPath(p.GroupID, p.UserID)
-	err = MoveUserDir(oldpath, newpath)
+	err = MoveUserDir(oldGroupID, p.GroupID, p.UserID)
 	if err != nil {
+		_, err = db.UpdateGroupID(p.UserID, oldGroupID, p.Password)
+		if err != nil {
+			return false, err
+		}
+
 		return false, err
 	}
 	return true, nil

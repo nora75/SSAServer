@@ -20,7 +20,7 @@ func GetLogPath() (string) {
 func SaveFile(data []byte,path string, name string) error {
 	err := checkFile(path)
 	if err != nil {
-		err = CreateUserDir(path)
+		err = createDir(path)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %s", err)
 		}
@@ -42,8 +42,34 @@ func SaveFile(data []byte,path string, name string) error {
 	return nil
 }
 
+// CreateUserDir  is create new user dir
+func CreateUserDir(gr string, id int) error {
+	path := GetUserDirPath(gr, id)
+	err := createDir(path)
+	if err !=  nil {
+		return err
+	}
+	return nil
+}
+
 // MoveUserDir move user directory in server
-func MoveUserDir(oldpath string, newpath string) error {
+func MoveUserDir(oldgid string, newgid string, uid int) error {
+	grpath := getGroupPath(newgid)
+	err := checkFile(grpath)
+	if err != nil {
+		createDir(grpath)
+	}
+	oldpath := GetUserDirPath(oldgid, uid)
+	newpath := GetUserDirPath(newgid, uid)
+	err = moveDir(oldpath, newpath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// moveDir move user directory in server
+func moveDir(oldpath string, newpath string) error {
 	err := checkFile(oldpath)
 	if err != nil {
 		return fmt.Errorf("failed to open dir: %s", err)
@@ -102,7 +128,7 @@ func DeleteGroupDir(path string) error {
 	return nil
 }
 
-// GetUserDirPath return current dir path
+// GetUserDirPath return user dir path
 func GetUserDirPath(gr string, id int) (path string) {
 	path, _ = os.Getwd()
 	slash := getSlash()
@@ -110,11 +136,18 @@ func GetUserDirPath(gr string, id int) (path string) {
 	return path
 }
 
+// getGroupPath return group dir path
+func getGroupPath(gr string) (path string) {
+	path, _ = os.Getwd()
+	slash := getSlash()
+	path = path + slash + gr
+	return path
+}
+
 // GetPickUpPath return data's path	from group_name, user_id and data_name
 func GetPickUpPath(gr string, id int, name string) (path string) {
 	slash := getSlash()
 	path = GetUserDirPath(gr,id) + slash + name
-	fmt.Println(path)
 	return path
 }
 
@@ -136,8 +169,8 @@ func checkFile(path string) error {
 	return nil
 }
 
-// CreateUserDir  is create new user dir
-func CreateUserDir(path string) error {
+// createDir  is create new dir
+func createDir(path string) error {
 	if err := os.MkdirAll(path, 0700); err !=  nil {
 		return err
 	}

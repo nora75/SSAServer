@@ -99,7 +99,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host += ":443"
 			}
-			db.InitDB()
+			db.InitDB() // Initialize DB Tables
 			handleHTTPServer(ctx, u, sSAServerEndpoints, &wg, errc, logger, *dbgF)
 		}
 
