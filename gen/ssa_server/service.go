@@ -89,8 +89,8 @@ type SsaResult struct {
 
 // LoginPayload is the payload type of the SSAServer service Login method.
 type LoginPayload struct {
-	// User ID
-	UserID int
+	// User mail-address
+	Mail string
 	// User Password
 	Password string
 }

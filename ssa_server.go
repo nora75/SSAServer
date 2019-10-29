@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"regexp"
+	db "SSAServer/db"
 
 	// "os"
 	"strings"
@@ -54,19 +54,19 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	s.logger.Print("sSAServer.Register")
 	res.UserName = &p.UserName
 	res.Mail = &p.Mail
-	res.UserID = &Counter
-	Counter++
 	GroupName := "group-" + RandString(12)
 	if p.GroupID == nil || strings.EqualFold(*p.GroupID, "") {
 		res.GroupID = &GroupName
 	} else {
 		res.GroupID = p.GroupID
 	}
-	err = InsertUserData(*res.UserName, *res.Password, *res.Mail, *res.GroupID)
+	var id int
+	id, err = db.InsertUserData(*res.UserName, *res.Password, *res.Mail, *res.GroupID)
 
 	if err != nil {
 		return res, err
 	}
+	res.UserID = &id
 
 	path := GetUserDirPath(*res.GroupID, *res.UserID)
 	err = CreateUserDir(path)
@@ -83,15 +83,12 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 // dbとの統合
 func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Login")
-	r := regexp.MustCompile(`pass`)
-	if r.MatchString(p.Password) {
-		return false, fmt.Errorf("パスワードが不正です。")
-	}
 
-	// err = PasswordAuthentication(p.UserID, p.Password)
-	// if err != nil {
-	// 	return false, err
-	// }
+	// ログイン情報の成否判定
+	err = db.UserAuth(p.Mail, p.Password)
+	if err != nil {
+		return false, err
+	}
 
 	return true, nil
 }
@@ -101,22 +98,18 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 // dbとの統合
 func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
-	r := regexp.MustCompile(`^group-`)
-	if r.MatchString(p.GroupID) {
-		return false, fmt.Errorf("不正なグループ名です。")
+	var oldGroupID string
+	oldGroupID, err = db.UpdateGroupID(p.UserID, p.GroupID, p.Password)
+	if err != nil {
+		return false, err
 	}
-	// oldpath := GetUserDirPath(p.GroupID, p.UserID)
-	oldpath := GetUserDirPath("group-"+p.Password, p.UserID)
+
+	oldpath := GetUserDirPath(oldGroupID, p.UserID)
 	newpath := GetUserDirPath(p.GroupID, p.UserID)
 	err = MoveUserDir(oldpath, newpath)
 	if err != nil {
 		return false, err
 	}
-	err = UpdateGroupID(p.UserID, p.GroupID, p.Password)
-	if err != nil {
-		return false, err
-	}
-
 	return true, nil
 }
 
@@ -125,21 +118,17 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 // dbとの統合
 func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Delete_user")
-	r := regexp.MustCompile(`^group-`)
-	if r.MatchString(p.Password) {
-		return false, fmt.Errorf("パスワードが不正です。")
-	}
-	path := GetUserDirPath("group-"+p.Password, p.UserID)
-	err = DeleteUserDir(path)
-	if err != nil {
-		return false, err
-	}
+	// path := GetUserDirPath("group-"+p.Password, p.UserID)
+	// err = DeleteUserDir(path)
+	// if err != nil {
+	// 	return false, err
+	// }
 	// err = DeleteGroupDir(path)
 	// if err !=  nil {
 	// 	fmt.Println("An error occured when delete group dir:"+path)
 	// }
 
-	err = DeleteUser(p.UserID, p.Password)
+	err = db.DeleteUser(p.UserID, p.Password)
 	if err != nil {
 		return false, err
 	}
@@ -161,6 +150,11 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	default:
 		return false, fmt.Errorf("不正なdata_typeです。")
 	}
+	err = db.InsertDataData(p.UserID, p.GroupID, p.DataName, *p.ImageName, *p.Title, p.DataType)
+	if err != nil {
+		return false, err
+	}
+
 	path := GetUserDirPath(p.GroupID, p.UserID)
 	err = SaveFile(p.Data, path, p.DataName)
 	if err != nil {
@@ -173,11 +167,6 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 			return false, err
 		}
 		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
-	}
-
-	err = InsertDataData(p.UserID, p.GroupID, p.DataName, *p.ImageName, *p.Title, p.DataType)
-	if err != nil {
-		return false, err
 	}
 
 	return true, nil

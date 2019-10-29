@@ -54,13 +54,14 @@ var _ = Service("SSAServer", func() {
 	Method("Login", func() {
 		Description("SSAへのログイン")
 		Payload(func() {
-			Attribute("user_id", Int, "User ID", func(){
-				Example(125434)
+			Attribute("mail", String, "User mail-address", func(){
+				Format("email")
+				Example("hoge@hoge.com")
 			})
 			Attribute("password", String, "User Password", func(){
 				Example("password")
 			})
-			Required("user_id", "password")
+			Required("mail", "password")
 		})
 
 		Result(Boolean)

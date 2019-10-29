@@ -30,8 +30,8 @@ type RegisterRequestBody struct {
 // LoginRequestBody is the type of the "SSAServer" service "Login" endpoint
 // HTTP request body.
 type LoginRequestBody struct {
-	// User ID
-	UserID int `form:"user_id" json:"user_id" xml:"user_id"`
+	// User mail-address
+	Mail string `form:"mail" json:"mail" xml:"mail"`
 	// User Password
 	Password string `form:"password" json:"password" xml:"password"`
 }
@@ -344,7 +344,7 @@ func NewRegisterRequestBody(p *ssaserver.RegisterPayload) *RegisterRequestBody {
 // "Login" endpoint of the "SSAServer" service.
 func NewLoginRequestBody(p *ssaserver.LoginPayload) *LoginRequestBody {
 	body := &LoginRequestBody{
-		UserID:   p.UserID,
+		Mail:     p.Mail,
 		Password: p.Password,
 	}
 	return body
