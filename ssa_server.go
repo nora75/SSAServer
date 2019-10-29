@@ -61,7 +61,7 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 		res.GroupID = p.GroupID
 	}
 	var id int
-	id, err = db.InsertUserData(*res.UserName, *res.Password, *res.Mail, *res.GroupID)
+	id, err = db.InsertUserData(*res.UserName, p.Password, *res.Mail, *res.GroupID)
 
 	if err != nil {
 		return res, err
