@@ -143,12 +143,13 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 // dbとの統合
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Save_data")
+	fmt.Printf("%+v", p)
 	var mes string
 	switch p.DataType {
 	case 0:
-		mes = "日記"
-	case 1:
 		mes = "録音"
+	case 1:
+		mes = "日記"
 	default:
 		return false, fmt.Errorf("不正なdata_typeです。")
 	}
@@ -163,12 +164,14 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 		return false, err
 	}
 	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
-	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")) {
-		err = SaveFile(p.Image, path, *p.ImageName)
-		if err != nil {
-			return false, err
+	if (p.DataType == 1) {
+		if !(p.Image == nil && (p.ImageName == nil || strings.EqualFold(*p.ImageName, ""))) {
+			err = SaveFile(p.Image, path, *p.ImageName)
+			if err != nil {
+				return false, err
+			}
+			s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 		}
-		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	}
 
 	return true, nil
