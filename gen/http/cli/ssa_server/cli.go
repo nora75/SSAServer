@@ -292,6 +292,7 @@ Example:
       "data_name": "Diary_312_2019-03-02_12-07-35",
       "data_type": 1,
       "image_name": "Image_2017-05-25-26-32",
+      "password": "pass12345",
       "title": "たいとる",
       "user_id": 28532
    }' --group-id "group1"

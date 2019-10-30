@@ -5,6 +5,7 @@ import (
 	ssa "SSAServer"
 	ssaserver "SSAServer/gen/ssa_server"
 	db "SSAServer/db"
+	files "SSAServer/files"
 	"context"
 	"flag"
 	"fmt"
@@ -34,7 +35,7 @@ func main() {
 
 	)
 	{
-		logpath := ssa.GetLogPath()
+		logpath := files.GetLogPath()
 		logger = log.New(&lumberjack.Logger{
 			Filename: logpath,
 			MaxSize: 500,

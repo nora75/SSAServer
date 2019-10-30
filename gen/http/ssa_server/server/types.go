@@ -57,6 +57,8 @@ type DeleteUserRequestBody struct {
 type SaveDataRequestBody struct {
 	// User ID
 	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" xml:"user_id,omitempty"`
+	// User Password
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 	// Data name
 	DataName *string `form:"data_name,omitempty" json:"data_name,omitempty" xml:"data_name,omitempty"`
 	// Data name
@@ -709,6 +711,7 @@ func NewDeleteUserPayload(body *DeleteUserRequestBody, userID int) *ssaserver.De
 func NewSaveDataPayload(body *SaveDataRequestBody, groupID string) *ssaserver.SaveDataPayload {
 	v := &ssaserver.SaveDataPayload{
 		UserID:    *body.UserID,
+		Password:  *body.Password,
 		DataName:  *body.DataName,
 		DataType:  *body.DataType,
 		Data:      body.Data,
@@ -802,6 +805,9 @@ func ValidateDeleteUserRequestBody(body *DeleteUserRequestBody) (err error) {
 func ValidateSaveDataRequestBody(body *SaveDataRequestBody) (err error) {
 	if body.UserID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("user_id", "body"))
+	}
+	if body.Password == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("password", "body"))
 	}
 	if body.DataName == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("data_name", "body"))

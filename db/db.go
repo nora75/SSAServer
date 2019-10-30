@@ -51,24 +51,6 @@ type Result struct {
 	DataType  int
 }
 
-// DB Connection Information
-const (
-	// Dialect define DB type
-	Dialect = "mysql"
-
-	// DBUser define connected user name
-	DBUser = ""
-
-	// DBPass define DB User's password
-	DBPass = ""
-
-	// DBProtocol define connect method
-	DBProtocol = "tcp(127.0.0.1:3306)"
-
-	// DBName define connect DB name
-	DBName = ""
-)
-
 // InitDB check connection and auto create tables if not available
 func InitDB() {
 	db, err := connectGorm()
@@ -158,7 +140,7 @@ func insertData(dataData Data) error {
 	return nil
 }
 
-// InsertUserData insert user data to users table
+// InsertUserData i nsert user data to users table
 func InsertUserData(UserName string, PassWord string, Mail string, GroupID string) (int, error) {
 	userData := User{
 		UserName: UserName,
@@ -175,7 +157,7 @@ func InsertUserData(UserName string, PassWord string, Mail string, GroupID strin
 }
 
 // InsertDataData insert data data to data table
-func InsertDataData(UserID int, GroupID string, DataName string, ImageName string, Title string, DataType int) error {
+func InsertDataData(UserID int, PassWord string, GroupID string, DataName string, ImageName string, Title string, DataType int) error {
 	dataData := Data{
 		UserID:    UserID,
 		GroupID:   GroupID,
@@ -184,8 +166,12 @@ func InsertDataData(UserID int, GroupID string, DataName string, ImageName strin
 		ImageName: ImageName,
 		DataType:  DataType,
 	}
+	err := passwordAuthentication(UserID, PassWord)
+	if err != nil {
+		return err
+	}
 
-	err := insertData(dataData)
+	err = insertData(dataData)
 	if err != nil {
 		return err
 	}
