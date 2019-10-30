@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	db "SSAServer/db"
+	files "SSAServer/files"
 
 	// "os"
 	"strings"
@@ -68,7 +69,7 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	}
 	res.UserID = &id
 
-	err = CreateUserDir(*res.GroupID, *res.UserID)
+	err = files.CreateUserDir(*res.GroupID, *res.UserID)
 
 	if err != nil {
 		return res, err
@@ -103,7 +104,7 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 		return false, err
 	}
 
-	err = MoveUserDir(oldGroupID, p.GroupID, p.UserID)
+	err = files.MoveUserDir(oldGroupID, p.GroupID, p.UserID)
 	if err != nil {
 		_, err = db.UpdateGroupID(p.UserID, oldGroupID, p.Password)
 		if err != nil {
@@ -143,7 +144,6 @@ func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserP
 // dbとの統合
 func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Save_data")
-	fmt.Printf("%+v", p)
 	var mes string
 	switch p.DataType {
 	case 0:
@@ -153,20 +153,19 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	default:
 		return false, fmt.Errorf("不正なdata_typeです。")
 	}
-	err = db.InsertDataData(p.UserID, p.GroupID, p.DataName, *p.ImageName, *p.Title, p.DataType)
+	err = db.InsertDataData(p.UserID, p.Password, p.GroupID, p.DataName, *p.ImageName, *p.Title, p.DataType)
 	if err != nil {
 		return false, err
 	}
 
-	path := GetUserDirPath(p.GroupID, p.UserID)
-	err = SaveFile(p.Data, path, p.DataName)
+	err = files.SaveFile(p.Data, p.GroupID, p.UserID, p.DataName)
 	if err != nil {
 		return false, err
 	}
 	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
 	if (p.DataType == 1) {
 		if !(p.Image == nil && (p.ImageName == nil || strings.EqualFold(*p.ImageName, ""))) {
-			err = SaveFile(p.Image, path, *p.ImageName)
+			err = files.SaveFile(p.Image, p.GroupID, p.UserID, *p.ImageName)
 			if err != nil {
 				return false, err
 			}

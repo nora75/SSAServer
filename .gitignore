@@ -7,3 +7,5 @@ back/*
 testhoge
 log/
 group*/
+conf/
+db/const.go

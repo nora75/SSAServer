@@ -51,6 +51,9 @@ func SSAServerSaveDataDecoderFunc(mr *multipart.Reader, p **ssaserver.SaveDataPa
 			ret.Data = slurp
 		case "Image":
 			ret.Image = slurp
+		case "password":
+			st := string(slurp)
+			ret.Password = &st
 		default:
 			mes := part.FormName() + "' is invalid form data"
 			return fmt.Errorf(mes)

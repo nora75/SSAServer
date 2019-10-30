@@ -127,7 +127,7 @@ func BuildSaveDataPayload(sSAServerSaveDataBody string, sSAServerSaveDataGroupID
 	{
 		err = json.Unmarshal([]byte(sSAServerSaveDataBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"Data\": \"UmVydW0gcmVwcmVoZW5kZXJpdCBxdWkgbW9sZXN0aWFlLg==\",\n      \"Image\": \"UXVpcyBvcHRpbyByZXJ1bSBjb3JydXB0aSBtb2xsaXRpYSB1dCBkb2xvcmUu\",\n      \"data_name\": \"Diary_312_2019-03-02_12-07-35\",\n      \"data_type\": 1,\n      \"image_name\": \"Image_2017-05-25-26-32\",\n      \"title\": \"たいとる\",\n      \"user_id\": 28532\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"Data\": \"UmVydW0gcmVwcmVoZW5kZXJpdCBxdWkgbW9sZXN0aWFlLg==\",\n      \"Image\": \"UXVpcyBvcHRpbyByZXJ1bSBjb3JydXB0aSBtb2xsaXRpYSB1dCBkb2xvcmUu\",\n      \"data_name\": \"Diary_312_2019-03-02_12-07-35\",\n      \"data_type\": 1,\n      \"image_name\": \"Image_2017-05-25-26-32\",\n      \"password\": \"pass12345\",\n      \"title\": \"たいとる\",\n      \"user_id\": 28532\n   }'")
 		}
 		if body.Data == nil {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Data", "body"))
@@ -142,6 +142,7 @@ func BuildSaveDataPayload(sSAServerSaveDataBody string, sSAServerSaveDataGroupID
 	}
 	v := &ssaserver.SaveDataPayload{
 		UserID:    body.UserID,
+		Password:  body.Password,
 		DataName:  body.DataName,
 		DataType:  body.DataType,
 		Data:      body.Data,

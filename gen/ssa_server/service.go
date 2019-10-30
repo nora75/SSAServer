@@ -122,6 +122,8 @@ type SaveDataPayload struct {
 	GroupID string
 	// User ID
 	UserID int
+	// User Password
+	Password string
 	// Data name
 	DataName string
 	// Data name
