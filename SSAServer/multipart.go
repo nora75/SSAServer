@@ -9,6 +9,7 @@ import (
 	"strings"
 	"os"
 
+	files "SSAServer/files"
 	ssaserver "SSAServer/gen/ssa_server"
 	// client "SSAServer/gen/http/ssa_server/client"
 	server "SSAServer/gen/http/ssa_server/server"
@@ -151,7 +152,10 @@ func SSAServerPickUpDataEncoderFunc(mw *multipart.Writer, p *ssaserver.PickUpDat
 }
 
 func createFileField(mw *multipart.Writer, p *ssaserver.PickUpDataPayload, name string, fname string) error {
-	path := GetPickUpPath(p.GroupID, p.DataUserID, name)
+	path, err := files.GetPickUpPath(p.GroupID, p.DataUserID, name)
+	if err != nil {
+		return err
+	}
 	fmt.Println(path)
 	file, err := os.Open(path)
 	if err != nil {
