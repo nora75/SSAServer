@@ -4,6 +4,8 @@ import (
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 	ssa "SSAServer"
 	ssaserver "SSAServer/gen/ssa_server"
+	db "SSAServer/db"
+	files "SSAServer/files"
 	"context"
 	"flag"
 	"fmt"
@@ -33,7 +35,7 @@ func main() {
 
 	)
 	{
-		logpath := ssa.GetLogPath()
+		logpath := files.GetLogPath()
 		logger = log.New(&lumberjack.Logger{
 			Filename: logpath,
 			MaxSize: 500,
@@ -98,6 +100,7 @@ func main() {
 			} else if u.Port() == "" {
 				u.Host += ":443"
 			}
+			db.InitDB() // Initialize DB Tables
 			handleHTTPServer(ctx, u, sSAServerEndpoints, &wg, errc, logger, *dbgF)
 		}
 

@@ -2,7 +2,16 @@ go.sum
 go.mod
 ssa_server.exe
 ssa_server.elf
-back/*
+ssa_server
+!ssa_server.go
+back/**/*
 testhoge
 log/
 group*/
+conf/
+**/db/const.go
+gin.exe
+gin.elf
+gin
+!Gin/
+!gin.go

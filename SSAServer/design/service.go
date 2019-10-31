@@ -55,6 +55,7 @@ var _ = Service("SSAServer", func() {
 		Description("SSAへのログイン")
 		Payload(func() {
 			Attribute("mail", String, "User mail-address", func(){
+				Format("email")
 				Example("hoge@hoge.com")
 			})
 			Attribute("password", String, "User Password", func(){
@@ -129,6 +130,9 @@ var _ = Service("SSAServer", func() {
 			Attribute("user_id", Int, "User ID", func(){
 				Example(28532)
 			})
+			Attribute("password", String, "User Password", func(){
+				Example("pass12345")
+			})
 			Attribute("data_name", String, "Data name", func(){
 				Example("Diary_312_2019-03-02_12-07-35")
 			})
@@ -147,7 +151,7 @@ var _ = Service("SSAServer", func() {
 			Attribute("Image", Bytes, "Image", func(){
 				Meta("swagger:example", "false")
 			})
-			Required("group_id", "user_id", "data_name", "data_type", "Data")
+			Required("group_id", "user_id", "password", "data_name", "data_type", "Data")
 		})
 
 		Result(Boolean)

@@ -3,10 +3,12 @@ package ssa
 import (
 	ssaserver "SSAServer/gen/ssa_server"
 	"context"
-	"log"
-	"regexp"
 	"fmt"
+	"log"
 	"math/rand"
+	db "SSAServer/db"
+	files "SSAServer/files"
+
 	// "os"
 	"strings"
 	"time"
@@ -26,10 +28,10 @@ var randSrc = rand.NewSource(time.Now().UnixNano())
 
 // for RandString
 const (
-    rs6Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    rs6LetterIdxBits = 6
-    rs6LetterIdxMask = 1<<rs6LetterIdxBits - 1
-    rs6LetterIdxMax = 63 / rs6LetterIdxBits
+	rs6Letters       = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+	rs6LetterIdxBits = 6
+	rs6LetterIdxMask = 1<<rs6LetterIdxBits - 1
+	rs6LetterIdxMax  = 63 / rs6LetterIdxBits
 )
 
 // SSAServer service example implementation.
@@ -50,14 +52,26 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 	s.logger.Print("sSAServer.Register")
 	res.UserName = &p.UserName
 	res.Mail = &p.Mail
-	res.UserID = &Counter
-	Counter++
 	GroupName := "group-" + RandString(12)
-	if p.GroupID == nil || strings.EqualFold(*p.GroupID, ""){
+	if p.GroupID == nil || strings.EqualFold(*p.GroupID, "") {
 		res.GroupID = &GroupName
 	} else {
 		res.GroupID = p.GroupID
 	}
+	var id int
+	id, err = db.InsertUserData(*res.UserName, p.Password, *res.Mail, *res.GroupID)
+
+	if err != nil {
+		return res, err
+	}
+	res.UserID = &id
+
+	err = files.CreateUserDir(*res.GroupID, *res.UserID)
+
+	if err != nil {
+		return res, err
+	}
+
 	return res, nil
 }
 
@@ -66,10 +80,13 @@ func (s *sSAServersrvc) Register(ctx context.Context, p *ssaserver.RegisterPaylo
 // dbとの統合
 func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Login")
-    r := regexp.MustCompile(`pass`)
-	if r.MatchString(p.Password) {
-		return false, fmt.Errorf("パスワードが不正です。")
+
+	// ログイン情報の成否判定
+	err = db.UserAuth(p.Mail, p.Password)
+	if err != nil {
+		return false, err
 	}
+
 	return true, nil
 }
 
@@ -78,18 +95,22 @@ func (s *sSAServersrvc) Login(ctx context.Context, p *ssaserver.LoginPayload) (r
 // dbとの統合
 func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGroupPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Change_group")
-	r := regexp.MustCompile(`^group-`)
-	if r.MatchString(p.GroupID) {
-		return false , fmt.Errorf("不正なグループ名です。")
-	}
-	// oldpath := GetUserDirPath(p.GroupID, p.UserID)
-	oldpath := GetUserDirPath("group-"+p.Password, p.UserID)
-	newpath := GetUserDirPath(p.GroupID, p.UserID)
-	err = MoveUserDir(oldpath, newpath)
-	if err !=  nil {
+	var oldGroupID string
+	oldGroupID, err = db.UpdateGroupID(p.UserID, p.GroupID, p.Password)
+	if err != nil {
 		return false, err
 	}
-	return true , nil
+
+	err = files.MoveUserDir(oldGroupID, p.GroupID, p.UserID)
+	if err != nil {
+		_, err = db.UpdateGroupID(p.UserID, oldGroupID, p.Password)
+		if err != nil {
+			return false, err
+		}
+
+		return false, err
+	}
+	return true, nil
 }
 
 // 既存ユーザーの消去
@@ -97,19 +118,21 @@ func (s *sSAServersrvc) ChangeGroup(ctx context.Context, p *ssaserver.ChangeGrou
 // dbとの統合
 func (s *sSAServersrvc) DeleteUser(ctx context.Context, p *ssaserver.DeleteUserPayload) (res bool, err error) {
 	s.logger.Print("sSAServer.Delete_user")
-	r := regexp.MustCompile(`^group-`)
-	if r.MatchString(p.Password) {
-		return false, fmt.Errorf("パスワードが不正です。")
-	}
-	path := GetUserDirPath("group-"+p.Password, p.UserID)
-	err = DeleteUserDir(path)
-	if err !=  nil {
-		return false, err
-	}
+	// path := GetUserDirPath("group-"+p.Password, p.UserID)
+	// err = DeleteUserDir(path)
+	// if err != nil {
+	// 	return false, err
+	// }
 	// err = DeleteGroupDir(path)
 	// if err !=  nil {
 	// 	fmt.Println("An error occured when delete group dir:"+path)
 	// }
+
+	err = db.DeleteUser(p.UserID, p.Password)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }
 
@@ -120,23 +143,33 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 	s.logger.Print("sSAServer.Save_data")
 	var mes string
 	switch p.DataType {
-		case 0: mes = "日記"
-		case 1: mes = "録音"
-		default: return false, fmt.Errorf("不正なdata_typeです。")
+	case 0:
+		mes = "録音"
+	case 1:
+		mes = "日記"
+	default:
+		return false, fmt.Errorf("不正なdata_typeです。")
 	}
-	path := GetUserDirPath(p.GroupID, p.UserID)
-	err = SaveFile(p.Data, path, p.DataName)
-	if err !=  nil {
+	err = db.InsertDataData(p.UserID, p.Password, p.GroupID, p.DataName, *p.ImageName, *p.Title, p.DataType)
+	if err != nil {
+		return false, err
+	}
+
+	err = files.SaveFile(p.Data, p.GroupID, p.UserID, p.DataName)
+	if err != nil {
 		return false, err
 	}
 	s.logger.Print(mes + ":" + p.DataName + "が保存されました。")
-	if !(p.Image == nil && p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
-		err = SaveFile(p.Image, path, *p.ImageName)
-		if err !=  nil {
-			return false, err
+	if (p.DataType == 1) {
+		if !(p.Image == nil && (p.ImageName == nil || strings.EqualFold(*p.ImageName, ""))) {
+			err = files.SaveFile(p.Image, p.GroupID, p.UserID, *p.ImageName)
+			if err != nil {
+				return false, err
+			}
+			s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 		}
-		s.logger.Print(mes + ":" + *p.ImageName + "が保存されました。")
 	}
+
 	return true, nil
 }
 
@@ -148,6 +181,10 @@ func (s *sSAServersrvc) SaveData(ctx context.Context, p *ssaserver.SaveDataPaylo
 func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnDataListPayload) (res ssaserver.SsaResultCollection, view string, err error) {
 	s.logger.Print("sSAServer.Return_data_list")
 	view = "data_list_origin"
+
+	// res, err = findAllDataInGroup(p.GroupID)
+	// 表示わからん
+
 	return res, view, nil
 }
 
@@ -162,34 +199,38 @@ func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataP
 	res.GroupID = &p.GroupID
 	res.DataType = &p.DataType
 	res.UserID = &p.UserID
-	fmt.Println("GroupID:"+p.GroupID)
-	fmt.Println("DataUserID:",p.DataUserID)
-	fmt.Println("DataType:",p.DataType)
-	fmt.Println("UserID:",p.UserID)
-	fmt.Println("DataName:",p.DataName)
+	fmt.Println("GroupID:" + p.GroupID)
+	fmt.Println("DataUserID:", p.DataUserID)
+	fmt.Println("DataType:", p.DataType)
+	fmt.Println("UserID:", p.UserID)
+	fmt.Println("DataName:", p.DataName)
 	res.DataName = &p.DataName
-	if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")){
-		fmt.Println("ImageName:",p.ImageName)
+	if !(p.ImageName == nil || strings.EqualFold(*p.ImageName, "")) {
+		fmt.Println("ImageName:", p.ImageName)
 		res.ImageName = p.ImageName
 	}
+
+	// retData := findData(p.GroupID)
+	// 表示わからん
+
 	return res, nil
 }
 
 // RandString Return Random n length String
 func RandString(n int) string {
-    b := make([]byte, n)
-    cache, remain := randSrc.Int63(), rs6LetterIdxMax
-    for i := n-1; i >= 0; {
-        if remain == 0 {
-            cache, remain = randSrc.Int63(), rs6LetterIdxMax
-        }
-        idx := int(cache & rs6LetterIdxMask)
-        if idx < len(rs6Letters) {
-            b[i] = rs6Letters[idx]
-            i--
-        }
-        cache >>= rs6LetterIdxBits
-        remain--
-    }
-    return string(b)
+	b := make([]byte, n)
+	cache, remain := randSrc.Int63(), rs6LetterIdxMax
+	for i := n - 1; i >= 0; {
+		if remain == 0 {
+			cache, remain = randSrc.Int63(), rs6LetterIdxMax
+		}
+		idx := int(cache & rs6LetterIdxMask)
+		if idx < len(rs6Letters) {
+			b[i] = rs6Letters[idx]
+			i--
+		}
+		cache >>= rs6LetterIdxBits
+		remain--
+	}
+	return string(b)
 }
