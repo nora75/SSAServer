@@ -8,7 +8,6 @@ import (
 	"os"
 	"io/ioutil"
 	"bufio"
-	"fmt"
 	"strconv"
 )
 
