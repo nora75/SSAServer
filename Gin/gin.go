@@ -51,6 +51,7 @@ func main() {
 		}
 
 		c.JSON(http.StatusOK, gin.H{
+			"user_id": user.ID,
 			"group_id": user.GroupID,
 			"mail": mail,
 			"password": password,
