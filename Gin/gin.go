@@ -29,18 +29,12 @@ func main() {
 	r := gin.Default()
 	r.GET("/group/:group_id", func(c *gin.Context) {
 		groupID := c.Param("group_id")
-		// json parse sect
-		var json RetListReq
-		if err := c.ShouldBindJSON(&json); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		userID, err := strconv.Atoi(json.UserID)
+		userID, err := strconv.Atoi(c.Query("user_id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		password := json.Password
+		password := c.Query("password")
 		err = db.GroupCheck(userID, password, groupID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -60,19 +54,13 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		// json parse sect
-		var json Test
-		if err := c.ShouldBindJSON(&json); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		userID, err := strconv.Atoi(json.UserID)
+		userID, err := strconv.Atoi(c.Query("user_id"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		password := json.Password
-		dataName := json.DataName
+		password := c.Query("password")
+		dataName := c.Query("data_name")
 		err = db.GroupCheck(userID, password, groupID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
