@@ -337,6 +337,23 @@ func retDataStruct(DataID int) Data {
 	return data
 }
 
+// RetUserStruct return user as struct
+func RetUserStruct(Mail string) (User, error) {
+	var user User
+	db, err := connectGorm()
+	defer db.Close()
+	if err != nil {
+		return user, fmt.Errorf("Can't connect to db server")
+	}
+
+	result := db.Where("mail = ?", Mail).First(&user)
+	if result.Error != nil {
+		return user, result.Error
+	}
+
+	return user, nil
+}
+
 func retDataList(data []Data) []string {
 	var ret []string
 
@@ -355,12 +372,12 @@ func findIDbyMail(mail string) (int, error) {
 		return 0, err
 	}
 
-	var users User
-	result := db.Table("users").Select("id").Where("mail = ?", mail).Scan(&users)
+	var user User
+	result := db.Where("mail = ?", mail).First(&user)
 	if result.Error != nil {
 		return 0, result.Error
 	}
-	id := int(users.Model.ID)
+	id := int(user.Model.ID)
 	return id, nil
 }
 

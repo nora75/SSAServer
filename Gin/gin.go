@@ -14,9 +14,8 @@ import (
 
 // Test Binding from JSON
 type Test struct {
-	UserID   string `form:"user_id" json:"user_id" xml:"user_id"  binding:"required"`
+	Mail   string `form:"mail" json:"mail" xml:"mail"  binding:"required"`
 	Password string `form:"password" json:"password" xml:"password" binding:"required"`
-	DataName string `form:"data_name" json:"data_name" xml:"data_name"  binding:"required"`
 }
 
 // RetListReq Binding from JSON
@@ -27,6 +26,37 @@ type RetListReq struct {
 
 func main() {
 	r := gin.Default()
+	r.POST("/Login", func(c *gin.Context) {
+		// json parse sect
+		var json Test
+		if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		mail := json.Mail
+		password := json.Password
+
+		// ログイン情報の成否判定
+		err := db.UserAuth(mail, password)
+		if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		user, err := db.RetUserStruct(mail)
+		if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"group_id": user.GroupID,
+			"mail": mail,
+			"password": password,
+			"user_name": user.UserName,
+		})
+	})
 	r.GET("/group/:group_id", func(c *gin.Context) {
 		groupID := c.Param("group_id")
 		userID, err := strconv.Atoi(c.Query("user_id"))

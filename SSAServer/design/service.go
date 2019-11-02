@@ -64,7 +64,10 @@ var _ = Service("SSAServer", func() {
 			Required("mail", "password")
 		})
 
-		Result(Boolean)
+		Result(MyResultType, func(){
+			View("extended")
+			Required("user_id","mail")
+		})
 
 		HTTP(func() {
 			POST("/Login")
