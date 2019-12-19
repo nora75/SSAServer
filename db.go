@@ -12,7 +12,7 @@ import (
 // Model base model definition, including fields `ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`,
 // which could be embedded in your models
 type Model struct {
-	ID         uint `gorm:"primary_key"`
+	ID        uint `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time `sql:"index"`
@@ -22,30 +22,30 @@ type Model struct {
 type User struct {
 	gorm.Model
 	UserName string `gorm:"not null"`
-	Password  string `gorm:"not null"`
-	Mail      string `gorm:"not null"`
+	Password string `gorm:"not null"`
+	Mail     string `gorm:"not null"`
 	GroupID  string `gorm:"not null"`
 }
 
 // Data struct define data table's struct
 type Data struct {
 	gorm.Model
-	UserID int `grom:"primary_key:true"`
+	UserID    int    `grom:"primary_key:true"`
 	GroupID   string `gorm:"not null"`
 	DataName  string `gorm:"primary_key"`
 	ImageName string
-	Title      string
+	Title     string
 	DataType  int `gorm:"not null"`
 }
 
 // Result struct define return data's list
 type Result struct {
-	UserID int
-	UserName string
+	UserID    int
+	UserName  string
 	GroupID   string
 	DataName  string
 	ImageName string
-	Title      string
+	Title     string
 	DataType  int
 }
 
@@ -71,7 +71,7 @@ func main() {
 	db := connectGorm()
 	defer db.Close()
 
-	db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{},&Data{})
+	db.Set("gorm:table_options", "ENGINE = InnoDB").AutoMigrate(&User{}, &Data{})
 }
 
 // connect to db
@@ -138,8 +138,8 @@ func insertData(dataData Data) error {
 func InsertUserData(UserName string, PassWord string, Mail string, GroupID string) error {
 	userData := User{
 		UserName: UserName,
-		Password:  PassWord,
-		Mail:      Mail,
+		Password: PassWord,
+		Mail:     Mail,
 		GroupID:  GroupID,
 	}
 
@@ -153,9 +153,9 @@ func InsertUserData(UserName string, PassWord string, Mail string, GroupID strin
 // InsertDataData insert data data to data table
 func InsertDataData(UserID int, GroupID string, DataName string, ImageName string, Title string, DataType int) error {
 	dataData := Data{
-		UserID:   UserID,
+		UserID:    UserID,
 		GroupID:   GroupID,
-		Title:      Title,
+		Title:     Title,
 		DataName:  DataName,
 		ImageName: ImageName,
 		DataType:  DataType,
@@ -193,7 +193,7 @@ func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 	defer db.Close()
 
 	err := PasswordAuthentication(UserID, PassWord)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -207,18 +207,21 @@ func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 }
 
 // FindAllDataInGroup return all data information of GroupID
-func FindAllDataInGroup(GroupID string) ([]Result, error) {
+func FindAllDataInGroup(GroupID string) ([]string, error) {
 	db := connectGorm()
 	defer db.Close()
 
-	var ret []Result
-	res := db.Table("users").Select("data.user_id, users.user_name, data.group_id, data.data_name, data.image_name, data.title, data.data_type").Joins("left join data on data.user_id = users.id").Scan(&ret)
+	var result []Result
+	res := db.Table("users").Select("data.user_id, users.user_name, data.group_id, data.data_name, data.image_name, data.title, data.data_type").Joins("left join data on data.user_id = users.id").Scan(&result)
 	if res.Error != nil {
 		fmt.Println("Error")
 		return nil, res.Error
 	}
+	fmt.Println(res)
 
-	return ret, nil
+	retResult := RetResultList(result)
+
+	return retResult, nil
 }
 
 // FindData return a data information of DataID
@@ -233,7 +236,7 @@ func FindData(DataID int) ([]string, error) {
 		return nil, result.Error
 	}
 
-	retData := retDataList(data)
+	retData := RetDataList(data)
 
 	return retData, nil
 }
@@ -255,20 +258,22 @@ func PasswordAuthentication(UserID int, PassWord string) error {
 	return nil
 }
 
-func retDataStruct(DataID int) Data {
-	db := connectGorm()
-	defer db.Close()
-
-	var data Data
-	db.Where("id = ?", DataID).First(&data)
-
-	return data
-}
-
-func retDataList(data []Data) []string {
+// RetDataList returns array list converted []Data
+func RetDataList(data []Data) []string {
 	var ret []string
 
 	for _, row := range data {
+		ret = append(ret, fmt.Sprintf("%+v\n", row))
+	}
+
+	return ret
+}
+
+// RetResultList returns array list converted []Result
+func RetResultList(result []Result) []string {
+	var ret []string
+
+	for _, row := range result {
 		ret = append(ret, fmt.Sprintf("%+v\n", row))
 	}
 

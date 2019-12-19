@@ -185,8 +185,13 @@ func (s *sSAServersrvc) ReturnDataList(ctx context.Context, p *ssaserver.ReturnD
 	s.logger.Print("sSAServer.Return_data_list")
 	view = "data_list_origin"
 
-	// res, err = findAllDataInGroup(p.GroupID)
-	// 表示わからん
+	res, err = findAllDataInGroup(p.GroupID)
+	if err != nil {
+		panic(err)
+	}
+	for _, row := range res {
+		fmt.Printf(row)
+	}
 
 	return res, view, nil
 }
@@ -213,8 +218,13 @@ func (s *sSAServersrvc) PickUpData(ctx context.Context, p *ssaserver.PickUpDataP
 		res.ImageName = p.ImageName
 	}
 
-	// retData := findData(p.GroupID)
-	// 表示わからん
+	retData := findData(p.GroupID)
+	if err != nil {
+		panic(err)
+	}
+	for _, row := range retData {
+		fmt.Printf(row)
+	}
 
 	return res, nil
 }
