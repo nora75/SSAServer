@@ -283,16 +283,15 @@ func main() {
 			return
 		}
 		if (dataType == 1) {
-			if !(image == nil || strings.EqualFold(imageName, "")) {
-				err = files.SaveFile(image, groupID, userID, imageName)
-				if err != nil {
-					c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-					return
-				}
+			err = files.SaveFile(image, groupID, userID, imageName)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
 			}
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-
+		c.JSON(http.StatusOK, gin.H{
+			"status": true,
+		})
 	})
 	r.GET("/group/:group_id/:data_user_id", func(c *gin.Context) {
 		groupID := c.Param("group_id")
