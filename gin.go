@@ -65,7 +65,7 @@ type LineJSON struct {
 
 // LineHookJSON Binding from JSON
 type LineHookJSON struct {
-	LineID   string `form:"mail" json:"mail" xml:"mail"  binding:"required"`
+	LineID   string `form:"line_id" json:"line_id" xml:"line_id"  binding:"required"`
 }
 
 
