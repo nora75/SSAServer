@@ -12,6 +12,7 @@ import (
 	"time"
 	"math/rand"
 	"strings"
+	"fmt"
 )
 
 // for RandString
@@ -56,8 +57,23 @@ type RetListJSON struct {
 	Password string `form:"password" json:"password" xml:"password" binding:"required"`
 }
 
+// LineJSON Binding from JSON
+type LineJSON struct {
+	Mail   string `form:"mail" json:"mail" xml:"mail"  binding:"required"`
+	Password string `form:"password" json:"password" xml:"password" binding:"required"`
+}
+
+// LineHookJSON Binding from JSON
+type LineHookJSON struct {
+	LineID   string `form:"mail" json:"mail" xml:"mail"  binding:"required"`
+}
+
+
 func main() {
 	r := gin.Default()
+	r.LoadHTMLGlob("./template/*")
+	r.Static("/favicon.png", "./assets/favicon.png")
+
 	r.POST("/Registration", func(c *gin.Context) {
 		var json RegistrationJSON
 		if err := c.ShouldBindJSON(&json); err != nil {
@@ -342,6 +358,54 @@ func main() {
 
 		c.DataFromReader(http.StatusOK, contentLength, contentType, bufio.NewReader(file), extraHeaders)
 	})
+	r.GET("/line-hook", func(c *gin.Context) {
+		var json LineHookJSON
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		lineID := json.LineID
+		fmt.Println("lineID" + lineID)
+		// groupID := db.GetGroupIDFromLineId(lineID)
+		// datalist, err := db.FindAllDataInGroup(groupID)
+		// if err != nil {
+		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// 	return
+		// }
+		// c.JSON(http.StatusOK, datalist)
+		datalist, err := db.FindAllDataInGroup("suno")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, datalist)
+	})
+	r.POST("/line-account/:line_id", func(c *gin.Context) {
+		var json LineJSON
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		lineID := c.Param("line_id")
+		mail := json.Mail
+		password := json.Password
+		// err = db.InsertLineUserID(userID, password, lineID)
+		// if err != nil {
+		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// 	return
+		// }
+		c.JSON(http.StatusOK, gin.H{
+			"status": true,
+			"line_id": lineID,
+			"mail": mail,
+			"password": password,
+		})
+	})
+	r.GET("/line-account/:line_id", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+	})
 	r.Run(":50113") // listen and serve on 0.0.0.0:50113
 
 }
@@ -351,7 +415,6 @@ func handleError(err error) {
 		panic("error")
 	}
 }
-
 
 // RandString Return Random n length String
 func RandString(n int) string {
