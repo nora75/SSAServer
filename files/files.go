@@ -1,4 +1,4 @@
-package ssa
+package files
 
 import (
 	"os"
@@ -17,10 +17,11 @@ func GetLogPath() (string) {
 }
 
 // SaveFile save file in server
-func SaveFile(data []byte,path string, name string) error {
-	err := checkFile(path)
+func SaveFile(data []byte, gr string, id int, name string) error {
+	path, err := getUserDirPath(gr,id)
+	err = checkFile(path)
 	if err != nil {
-		err = createUserDir(path)
+		err = createDir(path)
 		if err != nil {
 			return fmt.Errorf("failed to open file: %s", err)
 		}
@@ -42,8 +43,49 @@ func SaveFile(data []byte,path string, name string) error {
 	return nil
 }
 
+// CreateUserDir  is create new user dir
+func CreateUserDir(gr string, id int) error {
+	path, err := getUserDirPath(gr, id)
+	fmt.Println("createuserdir :" + path)
+	err = createDir(path)
+	if err !=  nil {
+		return err
+	}
+	return nil
+}
+
 // MoveUserDir move user directory in server
-func MoveUserDir(oldpath string, newpath string) error {
+func MoveUserDir(oldgid string, newgid string, uid int) error {
+	grpath, err := getGroupPath(newgid)
+	if err != nil {
+		return err
+	}
+	err = checkFile(grpath)
+	if err != nil {
+		err = createDir(grpath)
+		if err != nil {
+			return err
+		}
+	}
+	var oldpath string
+	var newpath string
+	oldpath, err = getUserDirPath(oldgid, uid)
+	if err != nil {
+		return err
+	}
+	newpath, err = getUserDirPath(newgid, uid)
+	if err != nil {
+		return err
+	}
+	err = moveDir(oldpath, newpath)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// moveDir move user directory in server
+func moveDir(oldpath string, newpath string) error {
 	err := checkFile(oldpath)
 	if err != nil {
 		return fmt.Errorf("failed to open dir: %s", err)
@@ -102,20 +144,40 @@ func DeleteGroupDir(path string) error {
 	return nil
 }
 
-// GetUserDirPath return current dir path
-func GetUserDirPath(gr string, id int) (path string) {
-	path, _ = os.Getwd()
+// getUserDirPath return user dir path
+func getUserDirPath(gr string, id int) (path string, err error) {
+	path, err = getGroupPath(gr)
+	if err != nil {
+		return "", err
+	}
 	slash := getSlash()
-	path = path + slash + gr + slash + strconv.Itoa(id)
-	return path
+	path = path  + slash + strconv.Itoa(id)
+	return path, nil
+}
+
+// getGroupPath return group dir path
+func getGroupPath(gr string) (path string, err error) {
+	path, err = os.Getwd()
+	if err != nil {
+		return
+	}
+	slash := getSlash()
+	path = path + slash + "group" + slash + gr
+	if err != nil {
+		return
+	}
+	return
 }
 
 // GetPickUpPath return data's path	from group_name, user_id and data_name
-func GetPickUpPath(gr string, id int, name string) (path string) {
+func GetPickUpPath(gr string, id int, name string) (path string, err error) {
 	slash := getSlash()
-	path = GetUserDirPath(gr,id) + slash + name
-	fmt.Println(path)
-	return path
+	path, err = getUserDirPath(gr,id)
+	if err != nil {
+		return
+	}
+	path = path + slash + name
+	return
 }
 
 // GetSlash return backslash or slash on server's environment
@@ -136,8 +198,8 @@ func checkFile(path string) error {
 	return nil
 }
 
-// createUserDir  is create new user dir
-func createUserDir(path string) error {
+// createDir  is create new dir
+func createDir(path string) error {
 	if err := os.MkdirAll(path, 0700); err !=  nil {
 		return err
 	}

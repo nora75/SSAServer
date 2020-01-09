@@ -3,6 +3,15 @@ go.mod
 ssa_server.exe
 ssa_server.elf
 ssa_server
-back/*
+!ssa_server.go
+back/**/*
 testhoge
 log/
+group*/
+conf/
+**/db/const.go
+gin.exe
+gin.elf
+gin
+!Gin/
+!gin.go
