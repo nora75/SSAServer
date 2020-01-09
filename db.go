@@ -1,4 +1,4 @@
-package ssa
+package main
 
 import (
 	"fmt"
@@ -25,6 +25,7 @@ type User struct {
 	Password string `gorm:"not null"`
 	Mail     string `gorm:"not null"`
 	GroupID  string `gorm:"not null"`
+	LineID   string `gorm:"default:null"`
 }
 
 // Data struct define data table's struct
@@ -204,6 +205,46 @@ func UpdateGroupID(UserID int, GroupID, PassWord string) error {
 	}
 
 	return nil
+}
+
+// UpdateLineID update database's user's LIneID
+func updateLineID(UserID int, LineID, PassWord string) error {
+	db := connectGorm()
+	defer db.Close()
+
+	err := PasswordAuthentication(UserID, PassWord)
+	if err != nil {
+		return err
+	}
+
+	var user User
+	result := db.Model(&user).Where("id = ?", UserID).Update("line_id", LineID)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+// FindLineID return user's line_id of GroupID
+func FindLineID(GroupID string) ([]string, error) {
+	db := connectGorm()
+	defer db.Close()
+
+	var lineID []User
+	res := db.Table("users").Select("line_id").Joins("Where group_id = ?", GroupID).Scan(&lineID)
+	if res.Error != nil {
+		fmt.Println("Error")
+		return nil, res.Error
+	}
+	fmt.Println(res)
+
+	var retResult []string
+	for _, row := range lineID {
+		retResult = append(retResult, fmt.Sprintf("%+v\n", row.LineID))
+	}
+
+	return retResult, nil
 }
 
 // FindAllDataInGroup return all data information of GroupID
