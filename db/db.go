@@ -265,6 +265,24 @@ func FindAllDataInGroup(GroupID string) ([]string, error) {
 	return retResult, nil
 }
 
+// FindDataSpecifiedNumber return all data information in specified number of GroupID
+func FindDataSpecifiedNumber(GroupID string, num int) ([]string, error) {
+	db := connectGorm()
+	defer db.Close()
+
+	var result []Result
+	res := db.Table("users").Limit(num).Order("id desc").Select("data.id, data.user_id, users.user_name, data.group_id, data.data_name, data.image_name, data.title, data.data_type").Joins("left join data on data.user_id = users.id").Scan(&result)
+	if res.Error != nil {
+		fmt.Println("Error")
+		return nil, res.Error
+	}
+	fmt.Println(res)
+
+	retResult := RetResultList(result)
+
+	return retResult, nil
+}
+
 // FindData return a data information of DataID
 func FindData(DataID int) ([]string, error) {
 	db := connectGorm()
