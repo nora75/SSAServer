@@ -7,6 +7,7 @@ import (
 	files "Gin/files"
 	"os"
 	"io/ioutil"
+        "io"
 	"bufio"
 	"strconv"
 	"time"
@@ -70,6 +71,15 @@ type LineHookJSON struct {
 
 
 func main() {
+        // For Disable Display Log
+        gin.DisableConsoleColor()
+
+        logpath := files.GetLogPath()
+
+        // Logging to a file.
+        f, _ := os.Create(logpath)
+        gin.DefaultWriter = io.MultiWriter(f)
+
 	r := gin.Default()
 	r.LoadHTMLGlob("./template/*")
 	r.Static("/favicon.png", "./assets/favicon.png")
@@ -248,7 +258,7 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		file, err := c.FormFile("Data")
+		file, err := c.FormFile("data")
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
