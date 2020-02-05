@@ -255,6 +255,27 @@ func FindAllDataInGroup(GroupID string) ([]Result, error) {
 	return ret, nil
 }
 
+// FindDataSpecifiedNumber return all data information in specified number of GroupID
+func FindDataSpecifiedNumber(GroupID string, num int) ([]string, error) {
+	db, err := connectGorm()
+	defer db.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	var result []Result
+	res := db.Table("users").Limit(num).Order("id desc").Select("data.id, data.user_id, users.user_name, data.group_id, data.data_name, data.image_name, data.title, data.data_type").Joins("left join data on data.user_id = users.id").Scan(&result)
+	if res.Error != nil {
+		fmt.Println("Error")
+		return nil, res.Error
+	}
+	fmt.Println(res)
+
+	retResult := retResultList(result)
+
+	return retResult, nil
+}
+
 // GroupCheck check group and user auth
 func GroupCheck(UserID int, PassWord string, GroupID string) (err error) {
 	var gid string
@@ -292,30 +313,6 @@ func UpdateLineID(UserID int, LineID, PassWord string) error {
 	}
 
 	return nil
-}
-
-// FindLineID return user's line_id of GroupID
-func FindLineID(UserID int) ([]string, error) {
-	db, err := connectGorm()
-	defer db.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	var lineID []User
-	res := db.Table("users").Select("line_id").Joins("Where id = ?", UserID).Scan(&lineID)
-	if res.Error != nil {
-		fmt.Println("Error")
-		return nil, res.Error
-	}
-	fmt.Println(res)
-
-	var retResult []string
-	for _, row := range lineID {
-		retResult = append(retResult, fmt.Sprintf("%+v\n", row.LineID))
-	}
-
-	return retResult, nil
 }
 
 // findData return a data information of DataID
@@ -399,6 +396,16 @@ func RetUserStruct(Mail string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func retResultList(result []Result) []string {
+	var ret []string
+
+	for _, row := range result {
+		ret = append(ret, fmt.Sprintf("%+v\n", row))
+	}
+
+	return ret
 }
 
 func retDataList(data []Data) []string {
