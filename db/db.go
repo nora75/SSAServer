@@ -337,7 +337,7 @@ func findData(DataID int) ([]string, error) {
 
 // UserAuth test user authentication by mail and password
 func UserAuth(mail string, password string) error {
-	id, err := FindIDbyMail(mail)
+	id, err := FindUserIDbyMail(mail)
 	if err != nil {
 		return err
 	}
@@ -433,6 +433,23 @@ func GetGroupIDFromLineID(lineID string) (string, error) {
 	}
 	gid := string(user.GroupID)
 	return gid, nil
+}
+
+// FindUserIDbyMail Return UserID from mail
+func FindUserIDbyMail(mail string) (int, error) {
+	db, err := connectGorm()
+	defer db.Close()
+	if err != nil {
+		return 0, err
+	}
+
+	var user User
+	result := db.Where("mail = ?", mail).First(&user)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	id := int(user.Model.ID)
+	return id, nil
 }
 
 // findGroupIDbyUserID Find group id by userID on users table

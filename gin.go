@@ -377,14 +377,13 @@ func main() {
 
 		lineID := json.LineID
 		fmt.Println("lineID" + lineID)
-		// groupID,err := db.GetGroupIDFromLineID(lineID)
-		// datalist, err := db.FindAllDataInGroup(groupID)
-		// if err != nil {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		// 	return
-		// }
-		// c.JSON(http.StatusOK, datalist)
-		datalist, err := db.FindAllDataInGroup("suno")
+		groupID,err := db.GetGroupIDFromLineID(lineID)
+		datalist, err := db.FindDataSpecifiedNumber(groupID, 10)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, datalist)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -401,7 +400,7 @@ func main() {
 		lineID := c.Param("line_id")
 		mail := json.Mail
 		password := json.Password
-		userID, err := db.FindIDbyMail(mail)
+		userID, err := db.FindUserIDbyMail(mail)
 		err = db.UpdateLineID(userID, password, lineID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
