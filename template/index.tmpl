@@ -31,6 +31,8 @@
                     success : function(data) {
                         $("#mes").html("連携に成功しました。")
                         $("#mes").show()
+                        window.open('about:blank','_self').close();
+                        window.close();
                     },
                     error : function(data) {
                         $("#mes").html("メールアドレス、または、パスワードを確認して下さい。")

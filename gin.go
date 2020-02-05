@@ -377,7 +377,7 @@ func main() {
 
 		lineID := json.LineID
 		fmt.Println("lineID" + lineID)
-		// groupID := db.GetGroupIDFromLineId(lineID)
+		// groupID,err := db.GetGroupIDFromLineID(lineID)
 		// datalist, err := db.FindAllDataInGroup(groupID)
 		// if err != nil {
 		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

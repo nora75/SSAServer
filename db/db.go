@@ -411,21 +411,21 @@ func retDataList(data []Data) []string {
 	return ret
 }
 
-// FindIDbyMail find id by mail on users table
-func FindIDbyMail(mail string) (int, error) {
+// GetGroupIDFromLineID Return GroupID from LineID
+func GetGroupIDFromLineID(lineID string) (string, error) {
 	db, err := connectGorm()
 	defer db.Close()
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	var user User
-	result := db.Where("mail = ?", mail).First(&user)
+	result := db.Where("line_id = ?", lineID).First(&user)
 	if result.Error != nil {
-		return 0, result.Error
+		return "", result.Error
 	}
-	id := int(user.Model.ID)
-	return id, nil
+	gid := string(user.GroupID)
+	return gid, nil
 }
 
 // findGroupIDbyUserID Find group id by userID on users table
