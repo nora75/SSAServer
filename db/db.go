@@ -271,7 +271,7 @@ func GroupCheck(UserID int, PassWord string, GroupID string) (err error) {
 }
 
 // UpdateLineID update database's user's LIneID
-func updateLineID(UserID int, LineID, PassWord string) error {
+func UpdateLineID(UserID int, LineID, PassWord string) error {
 	db, err := connectGorm()
 	defer db.Close()
 	if err != nil {
@@ -338,7 +338,7 @@ func findData(DataID int) ([]string, error) {
 
 // UserAuth test user authentication by mail and password
 func UserAuth(mail string, password string) error {
-	id, err := findIDbyMail(mail)
+	id, err := FindIDbyMail(mail)
 	if err != nil {
 			return err
 	}
@@ -409,8 +409,8 @@ func retDataList(data []Data) []string {
 	return ret
 }
 
-// find id by mail on users table
-func findIDbyMail(mail string) (int, error) {
+// FindIDbyMail find id by mail on users table
+func FindIDbyMail(mail string) (int, error) {
 	db, err := connectGorm()
 	defer db.Close()
 	if err != nil {

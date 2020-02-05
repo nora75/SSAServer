@@ -401,11 +401,12 @@ func main() {
 		lineID := c.Param("line_id")
 		mail := json.Mail
 		password := json.Password
-		// err = db.InsertLineUserID(userID, password, lineID)
-		// if err != nil {
-		// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		// 	return
-		// }
+		userID, err := db.FindIDbyMail(mail)
+		err = db.UpdateLineID(userID, password, lineID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"status": true,
 			"line_id": lineID,
